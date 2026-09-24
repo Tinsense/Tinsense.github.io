@@ -4,10 +4,10 @@ window.FORMATION_META = {
   "distribution": "matminer mp_nostruct_20181018 public snapshot",
   "snapshot_date": "2018-10-18",
   "dataset_url": "https://ndownloader.figshare.com/files/13309253",
-  "generated_at_utc": "2026-09-24T03:24:02.504148+00:00",
-  "selection": "Stable binary M-S and M-Cl entries with e_hull <= 1e-6 eV/atom. All stoichiometrically charge-balanced metal oxidation-state candidates allowed by pymatgen Element.oxidation_states are retained; negative S/Cl oxidation states are considered. A 2D point is drawn when sulfide and chloride share a metal oxidation-state candidate within ±0.06.",
+  "generated_at_utc": "2026-09-24T03:25:44.092044+00:00",
+  "selection": "Stable binary M-S and M-Cl entries with e_hull <= 1e-6 eV/atom. Chlorides use Cl=-1. Sulfides retain two stoichiometric metal-valence candidates corresponding to S=-2 and S=-1 (disulfide/polysulfide-like). A 2D point is drawn when sulfide and chloride share a candidate within ±0.06. A 2D point is drawn when sulfide and chloride share a metal oxidation-state candidate within ±0.06.",
   "energy_unit": "eV/atom",
-  "paired_points": 77,
+  "paired_points": 82,
   "paired_metals": 64,
   "snapshot_entries": 83989,
   "stable_binary_sulfide_entries": 184,
@@ -328,6 +328,19 @@ window.FORMATION_DATA = [
   },
   {
     "m": "Y",
+    "valence": 1.5,
+    "sulfide_formula": "Y2S3",
+    "sulfide_e": -2.477291,
+    "sulfide_entry_id": "mp-541289",
+    "sulfide_e_hull": 0.0,
+    "chloride_formula": "Y2Cl3",
+    "chloride_e": -2.207688,
+    "chloride_entry_id": "mp-27678",
+    "chloride_e_hull": 0.0,
+    "delta_s_minus_cl": -0.269603
+  },
+  {
+    "m": "Y",
     "valence": 3.0,
     "sulfide_formula": "Y2S3",
     "sulfide_e": -2.477291,
@@ -390,6 +403,19 @@ window.FORMATION_DATA = [
     "chloride_entry_id": "mp-569175",
     "chloride_e_hull": 0.0,
     "delta_s_minus_cl": 0.290324
+  },
+  {
+    "m": "Nb",
+    "valence": 2.67,
+    "sulfide_formula": "Nb3S4",
+    "sulfide_e": -1.478632,
+    "sulfide_entry_id": "mp-12627",
+    "sulfide_e_hull": 0.0,
+    "chloride_formula": "Nb3Cl8",
+    "chloride_e": -1.696007,
+    "chloride_entry_id": "mp-29950",
+    "chloride_e_hull": 0.0,
+    "delta_s_minus_cl": 0.217375
   },
   {
     "m": "Nb",
@@ -494,6 +520,19 @@ window.FORMATION_DATA = [
     "chloride_entry_id": "mp-23276",
     "chloride_e_hull": 0.0,
     "delta_s_minus_cl": 0.283532
+  },
+  {
+    "m": "In",
+    "valence": 1.5,
+    "sulfide_formula": "In2S3",
+    "sulfide_e": -0.954125,
+    "sulfide_entry_id": "mp-22216",
+    "sulfide_e_hull": 0.0,
+    "chloride_formula": "In2Cl3",
+    "chloride_e": -1.301161,
+    "chloride_entry_id": "mp-667324",
+    "chloride_e_hull": 0.0,
+    "delta_s_minus_cl": 0.347036
   },
   {
     "m": "In",
@@ -663,6 +702,19 @@ window.FORMATION_DATA = [
     "chloride_entry_id": "mp-22887",
     "chloride_e_hull": 0.0,
     "delta_s_minus_cl": 0.250002
+  },
+  {
+    "m": "Gd",
+    "valence": 1.5,
+    "sulfide_formula": "Gd2S3",
+    "sulfide_e": -2.472978,
+    "sulfide_entry_id": "mp-608146",
+    "sulfide_e_hull": 0.0,
+    "chloride_formula": "Gd2Cl3",
+    "chloride_e": -2.184245,
+    "chloride_entry_id": "mp-1078829",
+    "chloride_e_hull": 0.0,
+    "delta_s_minus_cl": -0.288733
   },
   {
     "m": "Gd",
@@ -1004,6 +1056,19 @@ window.FORMATION_DATA = [
   },
   {
     "m": "Pu",
+    "valence": 2.0,
+    "sulfide_formula": "PuS",
+    "sulfide_e": -2.090252,
+    "sulfide_entry_id": "mp-2086",
+    "sulfide_e_hull": 0.0,
+    "chloride_formula": "PuCl2",
+    "chloride_e": -2.125436,
+    "chloride_entry_id": "mp-867358",
+    "chloride_e_hull": 0.0,
+    "delta_s_minus_cl": 0.035184
+  },
+  {
+    "m": "Pu",
     "valence": 3.0,
     "sulfide_formula": "Pu2S3",
     "sulfide_e": -2.046853,
@@ -1025,6 +1090,7 @@ window.FORMATION_PHASES = {
         "e_form": -1.560761,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          0.5,
           1.0
         ]
       },
@@ -1033,7 +1099,10 @@ window.FORMATION_PHASES = {
         "mpid": "mp-995393",
         "e_form": -0.751868,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          4.0,
+          8.0
+        ]
       }
     ],
     "chlorides": [
@@ -1056,6 +1125,7 @@ window.FORMATION_PHASES = {
         "e_form": -1.391147,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       }
@@ -1080,6 +1150,7 @@ window.FORMATION_PHASES = {
         "e_form": -1.294371,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          0.5,
           1.0
         ]
       },
@@ -1089,7 +1160,8 @@ window.FORMATION_PHASES = {
         "e_form": -1.164721,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          1.0
+          1.0,
+          2.0
         ]
       },
       {
@@ -1097,14 +1169,20 @@ window.FORMATION_PHASES = {
         "mpid": "mp-12180",
         "e_form": -1.028111,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       },
       {
         "formula": "Na2S5",
         "mpid": "mp-28127",
         "e_form": -0.971256,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.5,
+          5.0
+        ]
       }
     ],
     "chlorides": [
@@ -1122,7 +1200,9 @@ window.FORMATION_PHASES = {
         "mpid": "mp-1080771",
         "e_form": -0.687072,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          7.0
+        ]
       }
     ]
   },
@@ -1159,6 +1239,7 @@ window.FORMATION_PHASES = {
         "e_form": -1.458031,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       }
@@ -1183,6 +1264,7 @@ window.FORMATION_PHASES = {
         "e_form": -1.281984,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          0.5,
           1.0
         ]
       },
@@ -1192,7 +1274,8 @@ window.FORMATION_PHASES = {
         "e_form": -1.266902,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          1.0
+          1.0,
+          2.0
         ]
       },
       {
@@ -1200,14 +1283,20 @@ window.FORMATION_PHASES = {
         "mpid": "mp-7667",
         "e_form": -1.19114,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.5,
+          3.0
+        ]
       },
       {
         "formula": "K2S5",
         "mpid": "mp-17146",
         "e_form": -1.062089,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.5,
+          5.0
+        ]
       }
     ],
     "chlorides": [
@@ -1230,6 +1319,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.476287,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       }
@@ -1264,11 +1354,30 @@ window.FORMATION_PHASES = {
         "e_form": -2.314434,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       }
     ],
     "chlorides": [
+      {
+        "formula": "Sc7Cl10",
+        "mpid": "mp-27513",
+        "e_form": -2.047614,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.429
+        ]
+      },
+      {
+        "formula": "Sc5Cl8",
+        "mpid": "mp-542449",
+        "e_form": -2.139766,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.6
+        ]
+      },
       {
         "formula": "ScCl3",
         "mpid": "mp-23309",
@@ -1277,32 +1386,39 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           3.0
         ]
-      },
-      {
-        "formula": "Sc5Cl8",
-        "mpid": "mp-542449",
-        "e_form": -2.139766,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Sc7Cl10",
-        "mpid": "mp-27513",
-        "e_form": -2.047614,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ]
   },
   "Ti": {
     "sulfides": [
       {
+        "formula": "Ti2S",
+        "mpid": "mp-616559",
+        "e_form": -1.309501,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.5,
+          1.0
+        ]
+      },
+      {
         "formula": "TiS",
         "mpid": "mp-1018028",
         "e_form": -1.802055,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
+        ]
+      },
+      {
+        "formula": "Ti7S12",
+        "mpid": "mp-673657",
+        "e_form": -1.774358,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.714,
+          3.429
         ]
       },
       {
@@ -1321,25 +1437,21 @@ window.FORMATION_PHASES = {
         "e_form": -1.466399,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          3.0
+          3.0,
+          6.0
         ]
-      },
-      {
-        "formula": "Ti7S12",
-        "mpid": "mp-673657",
-        "e_form": -1.774358,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Ti2S",
-        "mpid": "mp-616559",
-        "e_form": -1.309501,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
+      {
+        "formula": "Ti7Cl16",
+        "mpid": "mp-540671",
+        "e_form": -1.922078,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.286
+        ]
+      },
       {
         "formula": "TiCl3",
         "mpid": "mp-571143",
@@ -1357,18 +1469,41 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           4.0
         ]
-      },
-      {
-        "formula": "Ti7Cl16",
-        "mpid": "mp-540671",
-        "e_form": -1.922078,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ]
   },
   "V": {
     "sulfides": [
+      {
+        "formula": "V3S",
+        "mpid": "mp-7945",
+        "e_form": -0.706898,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.333,
+          0.667
+        ]
+      },
+      {
+        "formula": "V5S4",
+        "mpid": "mp-1133",
+        "e_form": -1.222328,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.8,
+          1.6
+        ]
+      },
+      {
+        "formula": "V3S4",
+        "mpid": "mp-799",
+        "e_form": -1.395646,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.333,
+          2.667
+        ]
+      },
       {
         "formula": "VS2",
         "mpid": "mp-1013525",
@@ -1385,29 +1520,9 @@ window.FORMATION_PHASES = {
         "e_form": -1.081421,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          4.0
+          4.0,
+          8.0
         ]
-      },
-      {
-        "formula": "V3S4",
-        "mpid": "mp-799",
-        "e_form": -1.395646,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "V5S4",
-        "mpid": "mp-1133",
-        "e_form": -1.222328,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "V3S",
-        "mpid": "mp-7945",
-        "e_form": -0.706898,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -1443,13 +1558,13 @@ window.FORMATION_PHASES = {
   "Cr": {
     "sulfides": [
       {
-        "formula": "CrS2",
-        "mpid": "mp-755263",
-        "e_form": -0.971401,
+        "formula": "Cr3S4",
+        "mpid": "mp-849071",
+        "e_form": -1.052215,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0,
-          4.0
+          1.333,
+          2.667
         ]
       },
       {
@@ -1458,6 +1573,7 @@ window.FORMATION_PHASES = {
         "e_form": -1.0974,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -1466,14 +1582,20 @@ window.FORMATION_PHASES = {
         "mpid": "mp-849084",
         "e_form": -1.073802,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.6,
+          3.2
+        ]
       },
       {
-        "formula": "Cr3S4",
-        "mpid": "mp-849071",
-        "e_form": -1.052215,
+        "formula": "CrS2",
+        "mpid": "mp-755263",
+        "e_form": -0.971401,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -1570,6 +1692,26 @@ window.FORMATION_PHASES = {
   "Co": {
     "sulfides": [
       {
+        "formula": "Co9S8",
+        "mpid": "mp-1513",
+        "e_form": -0.792159,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.889,
+          1.778
+        ]
+      },
+      {
+        "formula": "Co3S4",
+        "mpid": "mp-943",
+        "e_form": -0.807789,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.333,
+          2.667
+        ]
+      },
+      {
         "formula": "CoS2",
         "mpid": "mp-2070",
         "e_form": -0.786617,
@@ -1578,20 +1720,6 @@ window.FORMATION_PHASES = {
           2.0,
           4.0
         ]
-      },
-      {
-        "formula": "Co3S4",
-        "mpid": "mp-943",
-        "e_form": -0.807789,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Co9S8",
-        "mpid": "mp-1513",
-        "e_form": -0.792159,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -1609,6 +1737,36 @@ window.FORMATION_PHASES = {
   "Ni": {
     "sulfides": [
       {
+        "formula": "Ni3S2",
+        "mpid": "mp-362",
+        "e_form": -0.634245,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.667,
+          1.333
+        ]
+      },
+      {
+        "formula": "Ni9S8",
+        "mpid": "mp-976920",
+        "e_form": -0.686906,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.889,
+          1.778
+        ]
+      },
+      {
+        "formula": "Ni3S4",
+        "mpid": "mp-1050",
+        "e_form": -0.747314,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.333,
+          2.667
+        ]
+      },
+      {
         "formula": "NiS2",
         "mpid": "mp-2282",
         "e_form": -0.685036,
@@ -1617,27 +1775,6 @@ window.FORMATION_PHASES = {
           2.0,
           4.0
         ]
-      },
-      {
-        "formula": "Ni3S4",
-        "mpid": "mp-1050",
-        "e_form": -0.747314,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Ni9S8",
-        "mpid": "mp-976920",
-        "e_form": -0.686906,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Ni3S2",
-        "mpid": "mp-362",
-        "e_form": -0.634245,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -1654,6 +1791,16 @@ window.FORMATION_PHASES = {
   },
   "Cu": {
     "sulfides": [
+      {
+        "formula": "Cu7S4",
+        "mpid": "mp-624299",
+        "e_form": -0.394884,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.571,
+          1.143
+        ]
+      },
       {
         "formula": "CuS",
         "mpid": "mp-555599",
@@ -1673,13 +1820,6 @@ window.FORMATION_PHASES = {
           2.0,
           4.0
         ]
-      },
-      {
-        "formula": "Cu7S4",
-        "mpid": "mp-624299",
-        "e_form": -0.394884,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -1746,6 +1886,7 @@ window.FORMATION_PHASES = {
         "e_form": -1.059301,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       }
@@ -1774,21 +1915,23 @@ window.FORMATION_PHASES = {
   "Rb": {
     "sulfides": [
       {
-        "formula": "RbS",
-        "mpid": "mp-9062",
-        "e_form": -1.247102,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          1.0
-        ]
-      },
-      {
         "formula": "Rb2S",
         "mpid": "mp-8041",
         "e_form": -1.225127,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          0.5,
           1.0
+        ]
+      },
+      {
+        "formula": "RbS",
+        "mpid": "mp-9062",
+        "e_form": -1.247102,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
         ]
       },
       {
@@ -1796,14 +1939,20 @@ window.FORMATION_PHASES = {
         "mpid": "mp-7446",
         "e_form": -1.189088,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.5,
+          3.0
+        ]
       },
       {
         "formula": "Rb2S5",
         "mpid": "mp-16911",
         "e_form": -1.07491,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.5,
+          5.0
+        ]
       }
     ],
     "chlorides": [
@@ -1826,6 +1975,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.481364,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -1834,7 +1984,10 @@ window.FORMATION_PHASES = {
         "mpid": "mp-1175",
         "e_form": -1.515704,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          3.0,
+          6.0
+        ]
       }
     ],
     "chlorides": [
@@ -1862,23 +2015,36 @@ window.FORMATION_PHASES = {
         ]
       },
       {
+        "formula": "Y5S7",
+        "mpid": "mp-15670",
+        "e_form": -2.465756,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.4,
+          2.8
+        ]
+      },
+      {
         "formula": "Y2S3",
         "mpid": "mp-541289",
         "e_form": -2.477291,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
-      },
-      {
-        "formula": "Y5S7",
-        "mpid": "mp-15670",
-        "e_form": -2.465756,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
+      {
+        "formula": "Y2Cl3",
+        "mpid": "mp-27678",
+        "e_form": -2.207688,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.5
+        ]
+      },
       {
         "formula": "YCl3",
         "mpid": "mp-27455",
@@ -1887,18 +2053,21 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           3.0
         ]
-      },
-      {
-        "formula": "Y2Cl3",
-        "mpid": "mp-27678",
-        "e_form": -2.207688,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ]
   },
   "Zr": {
     "sulfides": [
+      {
+        "formula": "Zr9S2",
+        "mpid": "mp-27191",
+        "e_form": -0.731997,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.222,
+          0.444
+        ]
+      },
       {
         "formula": "ZrS",
         "mpid": "mp-7859",
@@ -1907,6 +2076,16 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           1.0,
           2.0
+        ]
+      },
+      {
+        "formula": "Zr3S4",
+        "mpid": "mp-684749",
+        "e_form": -1.959564,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.333,
+          2.667
         ]
       },
       {
@@ -1925,22 +2104,9 @@ window.FORMATION_PHASES = {
         "e_form": -1.699316,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          3.0
+          3.0,
+          6.0
         ]
-      },
-      {
-        "formula": "Zr3S4",
-        "mpid": "mp-684749",
-        "e_form": -1.959564,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Zr9S2",
-        "mpid": "mp-27191",
-        "e_form": -0.731997,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -1985,6 +2151,46 @@ window.FORMATION_PHASES = {
   "Nb": {
     "sulfides": [
       {
+        "formula": "Nb14S5",
+        "mpid": "mp-683941",
+        "e_form": -0.69413,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.357,
+          0.714
+        ]
+      },
+      {
+        "formula": "Nb3S4",
+        "mpid": "mp-12627",
+        "e_form": -1.478632,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.333,
+          2.667
+        ]
+      },
+      {
+        "formula": "Nb3S5",
+        "mpid": "mp-32983",
+        "e_form": -1.522683,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.667,
+          3.333
+        ]
+      },
+      {
+        "formula": "Nb25S48",
+        "mpid": "mp-684620",
+        "e_form": -1.474456,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.92,
+          3.84
+        ]
+      },
+      {
         "formula": "NbS2",
         "mpid": "mp-1077440",
         "e_form": -1.455204,
@@ -2000,39 +2206,30 @@ window.FORMATION_PHASES = {
         "e_form": -1.253495,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          3.0
+          3.0,
+          6.0
         ]
-      },
-      {
-        "formula": "Nb3S5",
-        "mpid": "mp-32983",
-        "e_form": -1.522683,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Nb3S4",
-        "mpid": "mp-12627",
-        "e_form": -1.478632,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Nb25S48",
-        "mpid": "mp-684620",
-        "e_form": -1.474456,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Nb14S5",
-        "mpid": "mp-683941",
-        "e_form": -0.69413,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
+      {
+        "formula": "Nb3Cl7",
+        "mpid": "mp-27880",
+        "e_form": -1.658396,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.333
+        ]
+      },
+      {
+        "formula": "Nb3Cl8",
+        "mpid": "mp-29950",
+        "e_form": -1.696007,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.667
+        ]
+      },
       {
         "formula": "NbCl4",
         "mpid": "mp-31040",
@@ -2050,20 +2247,6 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           5.0
         ]
-      },
-      {
-        "formula": "Nb3Cl8",
-        "mpid": "mp-29950",
-        "e_form": -1.696007,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Nb3Cl7",
-        "mpid": "mp-27880",
-        "e_form": -1.658396,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ]
   },
@@ -2163,13 +2346,23 @@ window.FORMATION_PHASES = {
   "Rh": {
     "sulfides": [
       {
-        "formula": "RhS2",
-        "mpid": "mp-22555",
-        "e_form": -0.811835,
+        "formula": "Rh17S15",
+        "mpid": "mp-21991",
+        "e_form": -0.735787,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0,
-          4.0
+          0.882,
+          1.765
+        ]
+      },
+      {
+        "formula": "Rh3S4",
+        "mpid": "mp-29841",
+        "e_form": -0.85813,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.333,
+          2.667
         ]
       },
       {
@@ -2178,22 +2371,19 @@ window.FORMATION_PHASES = {
         "e_form": -0.864772,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
       {
-        "formula": "Rh3S4",
-        "mpid": "mp-29841",
-        "e_form": -0.85813,
+        "formula": "RhS2",
+        "mpid": "mp-22555",
+        "e_form": -0.811835,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Rh17S15",
-        "mpid": "mp-21991",
-        "e_form": -0.735787,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -2211,13 +2401,33 @@ window.FORMATION_PHASES = {
   "Pd": {
     "sulfides": [
       {
-        "formula": "PdS2",
-        "mpid": "mp-13682",
-        "e_form": -0.712384,
+        "formula": "Pd4S",
+        "mpid": "mp-7819",
+        "e_form": -0.30989,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0,
-          4.0
+          0.25,
+          0.5
+        ]
+      },
+      {
+        "formula": "Pd3S",
+        "mpid": "mp-558378",
+        "e_form": -0.378872,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.333,
+          0.667
+        ]
+      },
+      {
+        "formula": "Pd16S7",
+        "mpid": "mp-393",
+        "e_form": -0.448046,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.438,
+          0.875
         ]
       },
       {
@@ -2226,29 +2436,19 @@ window.FORMATION_PHASES = {
         "e_form": -0.684889,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
       {
-        "formula": "Pd16S7",
-        "mpid": "mp-393",
-        "e_form": -0.448046,
+        "formula": "PdS2",
+        "mpid": "mp-13682",
+        "e_form": -0.712384,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Pd3S",
-        "mpid": "mp-558378",
-        "e_form": -0.378872,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Pd4S",
-        "mpid": "mp-7819",
-        "e_form": -0.30989,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -2271,6 +2471,7 @@ window.FORMATION_PHASES = {
         "e_form": -0.278228,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          0.5,
           1.0
         ]
       }
@@ -2290,7 +2491,9 @@ window.FORMATION_PHASES = {
         "mpid": "mp-864635",
         "e_form": -0.735626,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.5
+        ]
       }
     ]
   },
@@ -2312,7 +2515,8 @@ window.FORMATION_PHASES = {
         "e_form": -0.771487,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0
+          2.0,
+          4.0
         ]
       }
     ],
@@ -2346,6 +2550,7 @@ window.FORMATION_PHASES = {
         "e_form": -0.954125,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       }
@@ -2361,12 +2566,21 @@ window.FORMATION_PHASES = {
         ]
       },
       {
-        "formula": "InCl3",
-        "mpid": "mp-862983",
-        "e_form": -1.432651,
+        "formula": "In7Cl9",
+        "mpid": "mp-28730",
+        "e_form": -1.241083,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          3.0
+          1.286
+        ]
+      },
+      {
+        "formula": "In2Cl3",
+        "mpid": "mp-667324",
+        "e_form": -1.301161,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.5
         ]
       },
       {
@@ -2374,26 +2588,33 @@ window.FORMATION_PHASES = {
         "mpid": "mp-28112",
         "e_form": -1.35306,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.8
+        ]
       },
       {
-        "formula": "In2Cl3",
-        "mpid": "mp-667324",
-        "e_form": -1.301161,
+        "formula": "InCl3",
+        "mpid": "mp-862983",
+        "e_form": -1.432651,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "In7Cl9",
-        "mpid": "mp-28730",
-        "e_form": -1.241083,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          3.0
+        ]
       }
     ]
   },
   "Sn": {
     "sulfides": [
+      {
+        "formula": "SnS",
+        "mpid": "mp-2231",
+        "e_form": -0.77558,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
+        ]
+      },
       {
         "formula": "SnS2",
         "mpid": "mp-1170",
@@ -2402,15 +2623,6 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           2.0,
           4.0
-        ]
-      },
-      {
-        "formula": "SnS",
-        "mpid": "mp-2231",
-        "e_form": -0.77558,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          2.0
         ]
       }
     ],
@@ -2443,6 +2655,7 @@ window.FORMATION_PHASES = {
         "e_form": -0.651626,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       }
@@ -2471,21 +2684,23 @@ window.FORMATION_PHASES = {
   "Cs": {
     "sulfides": [
       {
-        "formula": "CsS",
-        "mpid": "mp-29266",
-        "e_form": -1.28351,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          1.0
-        ]
-      },
-      {
         "formula": "Cs2S",
         "mpid": "mp-540703",
         "e_form": -1.205003,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          0.5,
           1.0
+        ]
+      },
+      {
+        "formula": "CsS",
+        "mpid": "mp-29266",
+        "e_form": -1.28351,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
         ]
       },
       {
@@ -2493,7 +2708,10 @@ window.FORMATION_PHASES = {
         "mpid": "mp-1079600",
         "e_form": -1.219045,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.5,
+          3.0
+        ]
       }
     ],
     "chlorides": [
@@ -2516,6 +2734,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.41174,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -2525,7 +2744,8 @@ window.FORMATION_PHASES = {
         "e_form": -1.860174,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0
+          2.0,
+          4.0
         ]
       },
       {
@@ -2533,7 +2753,10 @@ window.FORMATION_PHASES = {
         "mpid": "mp-239",
         "e_form": -1.555612,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          3.0,
+          6.0
+        ]
       }
     ],
     "chlorides": [
@@ -2556,15 +2779,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.493067,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0
-        ]
-      },
-      {
-        "formula": "LaS2",
-        "mpid": "mp-1508",
-        "e_form": -2.306596,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -2574,6 +2789,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.590908,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -2582,7 +2798,20 @@ window.FORMATION_PHASES = {
         "mpid": "mp-558229",
         "e_form": -2.356168,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.9,
+          3.8
+        ]
+      },
+      {
+        "formula": "LaS2",
+        "mpid": "mp-1508",
+        "e_form": -2.306596,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -2605,7 +2834,18 @@ window.FORMATION_PHASES = {
         "e_form": -2.380259,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
+        ]
+      },
+      {
+        "formula": "Ce2S3",
+        "mpid": "mp-20973",
+        "e_form": -2.419244,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.5,
+          3.0
         ]
       },
       {
@@ -2616,15 +2856,6 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           2.0,
           4.0
-        ]
-      },
-      {
-        "formula": "Ce2S3",
-        "mpid": "mp-20973",
-        "e_form": -2.419244,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          3.0
         ]
       }
     ],
@@ -2648,7 +2879,28 @@ window.FORMATION_PHASES = {
         "e_form": -2.351184,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
+        ]
+      },
+      {
+        "formula": "Pr2S3",
+        "mpid": "mp-15179",
+        "e_form": -2.455786,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.5,
+          3.0
+        ]
+      },
+      {
+        "formula": "Pr10S19",
+        "mpid": "mp-561375",
+        "e_form": -2.2342,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.9,
+          3.8
         ]
       },
       {
@@ -2660,22 +2912,6 @@ window.FORMATION_PHASES = {
           2.0,
           4.0
         ]
-      },
-      {
-        "formula": "Pr2S3",
-        "mpid": "mp-15179",
-        "e_form": -2.455786,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          3.0
-        ]
-      },
-      {
-        "formula": "Pr10S19",
-        "mpid": "mp-561375",
-        "e_form": -2.2342,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -2698,15 +2934,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.359631,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0
-        ]
-      },
-      {
-        "formula": "NdS2",
-        "mpid": "mp-13568",
-        "e_form": -2.186034,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -2716,6 +2944,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.463698,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -2724,7 +2953,20 @@ window.FORMATION_PHASES = {
         "mpid": "mp-560786",
         "e_form": -2.239201,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.9,
+          3.8
+        ]
+      },
+      {
+        "formula": "NdS2",
+        "mpid": "mp-13568",
+        "e_form": -2.186034,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -2747,6 +2989,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.425259,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       }
@@ -2771,6 +3014,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.357779,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -2780,6 +3024,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.469543,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -2788,7 +3033,10 @@ window.FORMATION_PHASES = {
         "mpid": "mp-10534",
         "e_form": -2.240197,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.9,
+          3.8
+        ]
       }
     ],
     "chlorides": [
@@ -2811,6 +3059,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.50135,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       }
@@ -2849,20 +3098,12 @@ window.FORMATION_PHASES = {
         ]
       },
       {
-        "formula": "GdS2",
-        "mpid": "mp-1095479",
-        "e_form": -2.176371,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          2.0
-        ]
-      },
-      {
         "formula": "Gd2S3",
         "mpid": "mp-608146",
         "e_form": -2.472978,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -2871,10 +3112,32 @@ window.FORMATION_PHASES = {
         "mpid": "mp-646008",
         "e_form": -2.235343,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.9,
+          3.8
+        ]
+      },
+      {
+        "formula": "GdS2",
+        "mpid": "mp-1095479",
+        "e_form": -2.176371,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
+      {
+        "formula": "Gd2Cl3",
+        "mpid": "mp-1078829",
+        "e_form": -2.184245,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.5
+        ]
+      },
       {
         "formula": "GdCl3",
         "mpid": "mp-23265",
@@ -2883,13 +3146,6 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           3.0
         ]
-      },
-      {
-        "formula": "Gd2Cl3",
-        "mpid": "mp-1078829",
-        "e_form": -2.184245,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ]
   },
@@ -2901,7 +3157,18 @@ window.FORMATION_PHASES = {
         "e_form": -2.342563,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          1.0
+          1.0,
+          2.0
+        ]
+      },
+      {
+        "formula": "Tb5S7",
+        "mpid": "mp-1095641",
+        "e_form": -2.46491,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.4,
+          2.8
         ]
       },
       {
@@ -2910,6 +3177,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.479205,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -2919,15 +3187,9 @@ window.FORMATION_PHASES = {
         "e_form": -2.118587,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          2.0,
           4.0
         ]
-      },
-      {
-        "formula": "Tb5S7",
-        "mpid": "mp-1095641",
-        "e_form": -2.46491,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -2950,15 +3212,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.329553,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0
-        ]
-      },
-      {
-        "formula": "DyS2",
-        "mpid": "mp-1018675",
-        "e_form": -2.111808,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -2968,7 +3222,18 @@ window.FORMATION_PHASES = {
         "e_form": -2.474307,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
+        ]
+      },
+      {
+        "formula": "DyS2",
+        "mpid": "mp-1018675",
+        "e_form": -2.111808,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
         ]
       }
     ],
@@ -2987,27 +3252,34 @@ window.FORMATION_PHASES = {
   "Ho": {
     "sulfides": [
       {
+        "formula": "HoS",
+        "mpid": "mp-1240",
+        "e_form": -2.306043,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
+        ]
+      },
+      {
         "formula": "Ho2S3",
         "mpid": "mp-878",
         "e_form": -2.473394,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
-      },
-      {
-        "formula": "HoS",
-        "mpid": "mp-1240",
-        "e_form": -2.306043,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       },
       {
         "formula": "HoS2",
         "mpid": "mp-1018727",
         "e_form": -2.10147,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -3025,12 +3297,13 @@ window.FORMATION_PHASES = {
   "Er": {
     "sulfides": [
       {
-        "formula": "Er2S3",
-        "mpid": "mp-2234",
-        "e_form": -2.467907,
+        "formula": "ErS",
+        "mpid": "mp-1623",
+        "e_form": -2.283541,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          3.0
+          1.0,
+          2.0
         ]
       },
       {
@@ -3038,21 +3311,30 @@ window.FORMATION_PHASES = {
         "mpid": "mp-1095508",
         "e_form": -2.448667,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.4,
+          2.8
+        ]
       },
       {
-        "formula": "ErS",
-        "mpid": "mp-1623",
-        "e_form": -2.283541,
+        "formula": "Er2S3",
+        "mpid": "mp-2234",
+        "e_form": -2.467907,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.5,
+          3.0
+        ]
       },
       {
         "formula": "ErS2",
         "mpid": "mp-1018687",
         "e_form": -2.09504,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -3075,15 +3357,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.257587,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0
-        ]
-      },
-      {
-        "formula": "TmS2",
-        "mpid": "mp-1071948",
-        "e_form": -2.075834,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -3093,7 +3367,18 @@ window.FORMATION_PHASES = {
         "e_form": -2.478182,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
+        ]
+      },
+      {
+        "formula": "TmS2",
+        "mpid": "mp-1071948",
+        "e_form": -2.075834,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
         ]
       }
     ],
@@ -3117,6 +3402,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.588348,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -3126,7 +3412,8 @@ window.FORMATION_PHASES = {
         "e_form": -1.857764,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          2.0
+          2.0,
+          4.0
         ]
       }
     ],
@@ -3145,27 +3432,34 @@ window.FORMATION_PHASES = {
   "Lu": {
     "sulfides": [
       {
+        "formula": "LuS",
+        "mpid": "mp-656",
+        "e_form": -2.204619,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
+        ]
+      },
+      {
         "formula": "Lu2S3",
         "mpid": "mp-2826",
         "e_form": -2.448294,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
-      },
-      {
-        "formula": "LuS",
-        "mpid": "mp-656",
-        "e_form": -2.204619,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       },
       {
         "formula": "LuS2",
         "mpid": "mp-1018792",
         "e_form": -2.052616,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -3183,6 +3477,16 @@ window.FORMATION_PHASES = {
   "Hf": {
     "sulfides": [
       {
+        "formula": "Hf2S",
+        "mpid": "mp-10000",
+        "e_form": -1.253224,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.5,
+          1.0
+        ]
+      },
+      {
         "formula": "HfS2",
         "mpid": "mp-985829",
         "e_form": -2.024971,
@@ -3198,15 +3502,9 @@ window.FORMATION_PHASES = {
         "e_form": -1.697892,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          3.0
+          3.0,
+          6.0
         ]
-      },
-      {
-        "formula": "Hf2S",
-        "mpid": "mp-10000",
-        "e_form": -1.253224,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -3224,6 +3522,26 @@ window.FORMATION_PHASES = {
   "Ta": {
     "sulfides": [
       {
+        "formula": "Ta3S2",
+        "mpid": "mp-1826",
+        "e_form": -1.027951,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          0.667,
+          1.333
+        ]
+      },
+      {
+        "formula": "Ta27S50",
+        "mpid": "mp-530018",
+        "e_form": -1.507488,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.852,
+          3.704
+        ]
+      },
+      {
         "formula": "TaS2",
         "mpid": "mp-1984",
         "e_form": -1.493337,
@@ -3239,25 +3557,21 @@ window.FORMATION_PHASES = {
         "e_form": -1.305307,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          3.0
+          3.0,
+          6.0
         ]
-      },
-      {
-        "formula": "Ta27S50",
-        "mpid": "mp-530018",
-        "e_form": -1.507488,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "Ta3S2",
-        "mpid": "mp-1826",
-        "e_form": -1.027951,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
+      {
+        "formula": "Ta2Cl5",
+        "mpid": "mp-23274",
+        "e_form": -1.710485,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.5
+        ]
+      },
       {
         "formula": "TaCl5",
         "mpid": "mp-29831",
@@ -3266,13 +3580,6 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           5.0
         ]
-      },
-      {
-        "formula": "Ta2Cl5",
-        "mpid": "mp-23274",
-        "e_form": -1.710485,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ]
   },
@@ -3390,6 +3697,16 @@ window.FORMATION_PHASES = {
   "Ir": {
     "sulfides": [
       {
+        "formula": "Ir2S3",
+        "mpid": "mp-861979",
+        "e_form": -0.752404,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.5,
+          3.0
+        ]
+      },
+      {
         "formula": "IrS2",
         "mpid": "mp-2833",
         "e_form": -0.834737,
@@ -3397,15 +3714,6 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           2.0,
           4.0
-        ]
-      },
-      {
-        "formula": "Ir2S3",
-        "mpid": "mp-861979",
-        "e_form": -0.752404,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          3.0
         ]
       }
     ],
@@ -3424,6 +3732,16 @@ window.FORMATION_PHASES = {
   "Pt": {
     "sulfides": [
       {
+        "formula": "PtS",
+        "mpid": "mp-288",
+        "e_form": -0.744898,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
+        ]
+      },
+      {
         "formula": "PtS2",
         "mpid": "mp-762",
         "e_form": -0.796528,
@@ -3431,15 +3749,6 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           2.0,
           4.0
-        ]
-      },
-      {
-        "formula": "PtS",
-        "mpid": "mp-288",
-        "e_form": -0.744898,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          2.0
         ]
       }
     ],
@@ -3458,7 +3767,9 @@ window.FORMATION_PHASES = {
         "mpid": "mp-31134",
         "e_form": -0.837848,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          3.0
+        ]
       }
     ]
   },
@@ -3470,6 +3781,7 @@ window.FORMATION_PHASES = {
         "e_form": -0.292308,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          0.5,
           1.0
         ]
       }
@@ -3546,6 +3858,7 @@ window.FORMATION_PHASES = {
         "e_form": -0.565056,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          0.5,
           1.0
         ]
       },
@@ -3554,7 +3867,10 @@ window.FORMATION_PHASES = {
         "mpid": "mp-30520",
         "e_form": -0.615834,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.5,
+          5.0
+        ]
       }
     ],
     "chlorides": [
@@ -3572,14 +3888,18 @@ window.FORMATION_PHASES = {
         "mpid": "mp-680294",
         "e_form": -1.260296,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.5
+        ]
       },
       {
         "formula": "TlCl2",
         "mpid": "mp-27205",
         "e_form": -1.212579,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0
+        ]
       }
     ]
   },
@@ -3591,6 +3911,7 @@ window.FORMATION_PHASES = {
         "e_form": -0.86783,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.0,
           2.0
         ]
       },
@@ -3634,6 +3955,7 @@ window.FORMATION_PHASES = {
         "e_form": -0.741192,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -3642,7 +3964,10 @@ window.FORMATION_PHASES = {
         "mpid": "mp-971673",
         "e_form": -0.701383,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
+        ]
       }
     ],
     "chlorides": [
@@ -3665,6 +3990,7 @@ window.FORMATION_PHASES = {
         "e_form": -2.568997,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       }
@@ -3684,6 +4010,26 @@ window.FORMATION_PHASES = {
   "Th": {
     "sulfides": [
       {
+        "formula": "ThS",
+        "mpid": "mp-503",
+        "e_form": -2.18123,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
+        ]
+      },
+      {
+        "formula": "Th2S3",
+        "mpid": "mp-20163",
+        "e_form": -2.358635,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.5,
+          3.0
+        ]
+      },
+      {
         "formula": "ThS2",
         "mpid": "mp-1146",
         "e_form": -2.433048,
@@ -3694,29 +4040,14 @@ window.FORMATION_PHASES = {
         ]
       },
       {
-        "formula": "ThS",
-        "mpid": "mp-503",
-        "e_form": -2.18123,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          2.0
-        ]
-      },
-      {
-        "formula": "Th2S3",
-        "mpid": "mp-20163",
-        "e_form": -2.358635,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          3.0
-        ]
-      },
-      {
         "formula": "Th2S5",
         "mpid": "mp-1666",
         "e_form": -2.212941,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          2.5,
+          5.0
+        ]
       }
     ],
     "chlorides": [
@@ -3739,6 +4070,7 @@ window.FORMATION_PHASES = {
         "e_form": -1.859815,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -3748,7 +4080,8 @@ window.FORMATION_PHASES = {
         "e_form": -1.492015,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
-          3.0
+          3.0,
+          6.0
         ]
       }
     ],
@@ -3776,12 +4109,43 @@ window.FORMATION_PHASES = {
   "U": {
     "sulfides": [
       {
+        "formula": "US",
+        "mpid": "mp-2423",
+        "e_form": -1.699468,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
+        ]
+      },
+      {
         "formula": "U2S3",
         "mpid": "mp-22126",
         "e_form": -1.868782,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
+        ]
+      },
+      {
+        "formula": "U3S5",
+        "mpid": "mp-22536",
+        "e_form": -1.854215,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.667,
+          3.333
+        ]
+      },
+      {
+        "formula": "US2",
+        "mpid": "mp-2849",
+        "e_form": -1.809522,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.0,
+          4.0
         ]
       },
       {
@@ -3793,29 +4157,6 @@ window.FORMATION_PHASES = {
           3.0,
           6.0
         ]
-      },
-      {
-        "formula": "US2",
-        "mpid": "mp-2849",
-        "e_form": -1.809522,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": [
-          4.0
-        ]
-      },
-      {
-        "formula": "U3S5",
-        "mpid": "mp-22536",
-        "e_form": -1.854215,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "US",
-        "mpid": "mp-2423",
-        "e_form": -1.699468,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
@@ -3860,11 +4201,22 @@ window.FORMATION_PHASES = {
   "Np": {
     "sulfides": [
       {
+        "formula": "NpS",
+        "mpid": "mp-10109",
+        "e_form": -1.696869,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
+        ]
+      },
+      {
         "formula": "Np2S3",
         "mpid": "mp-504783",
         "e_form": -1.870819,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -3873,14 +4225,10 @@ window.FORMATION_PHASES = {
         "mpid": "mp-982385",
         "e_form": -1.844732,
         "e_hull": 0.0,
-        "metal_oxi_candidates": []
-      },
-      {
-        "formula": "NpS",
-        "mpid": "mp-10109",
-        "e_form": -1.696869,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
+        "metal_oxi_candidates": [
+          1.667,
+          3.333
+        ]
       }
     ],
     "chlorides": [
@@ -3907,11 +4255,22 @@ window.FORMATION_PHASES = {
   "Pu": {
     "sulfides": [
       {
+        "formula": "PuS",
+        "mpid": "mp-2086",
+        "e_form": -2.090252,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          1.0,
+          2.0
+        ]
+      },
+      {
         "formula": "Pu2S3",
         "mpid": "mp-862796",
         "e_form": -2.046853,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          1.5,
           3.0
         ]
       },
@@ -3921,18 +4280,21 @@ window.FORMATION_PHASES = {
         "e_form": -1.830074,
         "e_hull": 0.0,
         "metal_oxi_candidates": [
+          2.0,
           4.0
         ]
-      },
-      {
-        "formula": "PuS",
-        "mpid": "mp-2086",
-        "e_form": -2.090252,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ],
     "chlorides": [
+      {
+        "formula": "PuCl2",
+        "mpid": "mp-867358",
+        "e_form": -2.125436,
+        "e_hull": 0.0,
+        "metal_oxi_candidates": [
+          2.0
+        ]
+      },
       {
         "formula": "PuCl3",
         "mpid": "mp-22918",
@@ -3941,13 +4303,6 @@ window.FORMATION_PHASES = {
         "metal_oxi_candidates": [
           3.0
         ]
-      },
-      {
-        "formula": "PuCl2",
-        "mpid": "mp-867358",
-        "e_form": -2.125436,
-        "e_hull": 0.0,
-        "metal_oxi_candidates": []
       }
     ]
   }
