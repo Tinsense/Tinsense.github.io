@@ -1,801 +1,693 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="keywords" content="Hexo Theme Keep">
-    <meta name="description" content="Hexo Theme Keep">
-    <meta name="author" content="Tin">
-    
-    <title>
-        
-        Chenn Lab
-    </title>
-    
-<link rel="stylesheet" href="/css/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Tin 的固体物理学习与材料研究工具入口。">
+  <title>晶格 · Materials Learning Studio</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #000000;
+      --bg-elevated: #080808;
+      --surface: rgba(255,255,255,.055);
+      --surface-hover: rgba(255,255,255,.095);
+      --surface-strong: rgba(255,255,255,.12);
+      --text: #f5f5f7;
+      --text-secondary: rgba(245,245,247,.70);
+      --text-tertiary: rgba(245,245,247,.53);
+      --hairline: rgba(255,255,255,.13);
+      --hairline-strong: rgba(255,255,255,.24);
+      --accent: #a8d8ff;
+      --accent-ink: #001525;
+      --glass-fill: rgba(18,18,20,.10);
+      --glass-fill-hover: rgba(18,18,20,.18);
+      --glass-border: rgba(255,255,255,.11);
+      --glass-border-strong: rgba(255,255,255,.20);
+      --glass-top-edge: rgba(255,255,255,.16);
+      --glass-bottom-edge: rgba(0,0,0,.20);
+      --glass-shadow: rgba(0,0,0,.26);
+      --optical-grid: rgba(255,255,255,.018);
+      --max: 1180px;
+      --radius-sm: 14px;
+      --radius-md: 20px;
+      --radius-lg: 30px;
+      --ease: cubic-bezier(.22,.8,.24,1);
+      --fast: 180ms;
+      --panel: 360ms;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
 
-    
-        <link rel="shortcut icon" href="/images/Chen.jpg">
-    
-    
-<link rel="stylesheet" href="/font/css/fontawesome.min.css">
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f5f5f7;
+      --bg-elevated: #ffffff;
+      --surface: rgba(0,0,0,.045);
+      --surface-hover: rgba(0,0,0,.075);
+      --surface-strong: rgba(0,0,0,.11);
+      --text: #111113;
+      --text-secondary: rgba(17,17,19,.75);
+      --text-tertiary: rgba(17,17,19,.58);
+      --hairline: rgba(0,0,0,.13);
+      --hairline-strong: rgba(0,0,0,.24);
+      --accent: #0066cc;
+      --accent-ink: #ffffff;
+      --glass-fill: rgba(255,255,255,.12);
+      --glass-fill-hover: rgba(255,255,255,.22);
+      --glass-border: rgba(20,24,30,.10);
+      --glass-border-strong: rgba(20,24,30,.20);
+      --glass-top-edge: rgba(255,255,255,.62);
+      --glass-bottom-edge: rgba(20,24,30,.12);
+      --glass-shadow: rgba(20,26,36,.09);
+      --optical-grid: rgba(15,19,26,.022);
+    }
 
-    
-<link rel="stylesheet" href="/font/css/regular.min.css">
+    * { box-sizing: border-box; }
+    html {
+      min-width: 320px;
+      min-height: 100%;
+      margin: 0;
+      background: var(--bg);
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: clip;
+      color: var(--text);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 16% 4%, color-mix(in srgb, var(--text) 4%, transparent), transparent 34rem),
+        linear-gradient(var(--optical-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--optical-grid) 1px, transparent 1px);
+      background-size: auto, 72px 72px, 72px 72px;
+      background-attachment: fixed;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      transition: background-color var(--panel) var(--ease), color var(--panel) var(--ease);
+    }
+    a, button { font: inherit; }
+    a { color: inherit; }
+    button { color: inherit; }
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+    ::selection { background: var(--accent); color: var(--accent-ink); }
 
-    
-<link rel="stylesheet" href="/font/css/solid.min.css">
+    .liquid-panel,
+    .liquid-button,
+    .top-action,
+    .project-card {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-fill);
+      box-shadow:
+        inset 0 1px 0 var(--glass-top-edge),
+        inset 0 -1px 0 var(--glass-bottom-edge),
+        0 12px 38px var(--glass-shadow);
+      backdrop-filter: blur(18px) saturate(118%) brightness(.92);
+      -webkit-backdrop-filter: blur(18px) saturate(118%) brightness(.92);
+    }
+    :root[data-theme="light"] .liquid-panel,
+    :root[data-theme="light"] .liquid-button,
+    :root[data-theme="light"] .top-action,
+    :root[data-theme="light"] .project-card {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
 
-    
-<link rel="stylesheet" href="/font/css/brands.min.css">
+    .site-header {
+      position: fixed;
+      z-index: 100;
+      top: 12px;
+      left: 18px;
+      right: 18px;
+      height: 66px;
+      display: grid;
+      grid-template-columns: 250px 1fr auto;
+      align-items: center;
+      padding: 0 10px 0 18px;
+      border-radius: 22px;
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 48px;
+      text-decoration: none;
+    }
+    .brand > span:last-child {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .brand strong { font-size: 1.05rem; }
+    .brand small {
+      color: var(--text-tertiary);
+      font-size: .58rem;
+      letter-spacing: .13em;
+    }
+    .brand-glyph {
+      position: relative;
+      width: 31px;
+      height: 31px;
+      transform: rotate(30deg) skew(-5deg);
+    }
+    .brand-glyph i {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border: 1px solid var(--text-secondary);
+      border-radius: 50%;
+    }
+    .brand-glyph i:nth-child(1) { left: 0; top: 10px; }
+    .brand-glyph i:nth-child(2) { left: 11px; top: 0; }
+    .brand-glyph i:nth-child(3) { right: 0; top: 10px; }
+    .brand-glyph i:nth-child(4) { left: 11px; bottom: 0; background: var(--text); }
 
-    
-    <script class="keep-theme-configurations">
-    const KEEP = window.KEEP || {}
-    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN"}
-    KEEP.theme_config = {"base_info":{"primary_color":"#0066cc","title":"Chenn Lab","author":"Tin","avatar":"/images/touxiang.jpg","logo":"/images/Chen.jpg","favicon":"/images/Chen.jpg"},"menu":{"home":"/                        || fa-solid fa-home","archives":"/archives            || fa-regular fa-file","文库":{"icon":"fa-solid fa-book","children":[{"categories":"/categories || fa-solid fa-layer-group"},{"tags":"/tags || fa-solid fa-tags"}]},"about":"/about                || fa-solid fa-user-graduate"},"first_screen":{"enable":true,"background_img":"/images/bg2.svg","background_img_dark":"/images/bg2.svg","description":"Per Aspera Ad Astra","hitokoto":false},"social_contact":{"enable":true,"links":{"github":"https://github.com/Tinsense","weixin":"img | ./images/qrcode.jpg","qq":null,"weibo":null,"zhihu":null,"twitter":null,"x":null,"facebook":null,"email":"chr_iccas_ucas@163.com"}},"scroll":{"progress_bar":false,"percent":false,"hide_header":true},"home":{"announcement":null,"category":false,"tag":false,"post_datetime":"updated"},"post":{"author_badge":{"enable":true,"level_badge":true,"custom_badge":["One","Two","Three"]},"word_count":{"wordcount":false,"min2read":false},"datetime_format":"YYYY-MM-DD HH:mm:ss","copyright_info":false,"share":false,"reward":{"enable":false,"img_link":null,"text":null,"icon":null}},"code_block":{"tools":{"enable":false,"style":"default"},"highlight_theme":"default"},"toc":{"enable":false,"number":false,"expand_all":false,"init_open":true,"layout":"right"},"website_count":{"busuanzi_count":{"enable":false,"site_uv":false,"site_pv":false,"page_pv":false}},"local_search":{"enable":false,"preload":false},"comment":{"enable":false,"use":"valine","valine":{"appid":null,"appkey":null,"server_urls":null,"placeholder":null},"gitalk":{"github_id":null,"github_admins":null,"repository":null,"client_id":null,"client_secret":null,"proxy":null},"twikoo":{"env_id":null,"region":null,"version":"1.6.36"},"waline":{"server_url":null,"reaction":false,"version":"3.2.1"},"giscus":{"repo":null,"repo_id":null,"category":"Announcements","category_id":null,"reactions_enabled":false},"artalk":{"server":null},"disqus":{"shortname":null}},"rss":{"enable":false},"lazyload":{"enable":false},"cdn":{"enable":false,"provider":"cdnjs"},"pjax":{"enable":false},"footer":{"since":2020,"word_count":false,"site_deploy":{"enable":false,"provider":"github","url":null},"record":{"enable":false,"list":[{"code":null,"link":null}]}},"math":{"enable":true,"engine":"mathjax","mathjax":{"enable":true,"cdn":"//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"}},"inject":{"enable":false,"css":[null],"js":[null]},"mathjax":{"tags":"none","single_dollars":true,"cjk_width":0.9,"normal_width":0.6,"append_css":true,"every_page":false},"root":"","source_data":{},"version":"4.2.3"}
-    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"}
-    KEEP.language_code_block = {"copy":"复制代码","copied":"已复制","fold":"折叠代码块","folded":"已折叠"}
-    KEEP.language_copy_copyright = {"copy":"复制版权信息","copied":"已复制","title":"原文标题","author":"原文作者","link":"原文链接"}
-  </script>
-<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
-  direction: ltr;
-}
+    .header-center {
+      justify-self: center;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-secondary);
+      font-size: .7rem;
+      letter-spacing: .04em;
+    }
+    .header-center > span {
+      color: var(--text-tertiary);
+      font-size: .68rem;
+      letter-spacing: .1em;
+    }
+    .header-actions { display: flex; gap: 8px; }
+    .top-action {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: transform var(--fast) var(--ease), border-color var(--fast), background var(--fast);
+    }
+    .top-action:hover {
+      border-color: var(--glass-border-strong);
+      background: var(--glass-fill-hover);
+    }
+    .top-action:active { transform: scale(.98); }
+    .icon {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
-mjx-container[jax="SVG"] > svg {
-  overflow: visible;
-}
+    main {
+      width: min(calc(100% - 44px), var(--max));
+      margin: 0 auto;
+      padding: 158px 0 56px;
+    }
 
-mjx-container[jax="SVG"][display="true"] {
-  display: block;
-  text-align: center;
-  margin: 1em 0;
-}
+    .hero {
+      min-height: 610px;
+      display: grid;
+      grid-template-columns: minmax(0,1.08fr) minmax(390px,.92fr);
+      align-items: center;
+      gap: 40px;
+      padding: 62px;
+      border-radius: var(--radius-lg);
+    }
+    .overline {
+      margin: 0 0 18px;
+      color: var(--text-tertiary);
+      font-size: .66rem;
+      font-weight: 650;
+      letter-spacing: .14em;
+    }
+    h1 {
+      margin: 0 0 32px;
+      max-width: 720px;
+      font-size: clamp(3.4rem,7vw,6.6rem);
+      line-height: .98;
+      letter-spacing: -.055em;
+      font-weight: 600;
+    }
+    h1 span { color: var(--text-secondary); }
+    .hero-lead {
+      max-width: 700px;
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: clamp(1.05rem,1.7vw,1.36rem);
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 34px;
+    }
+    .liquid-button {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      transition: transform var(--fast) var(--ease), border-color var(--fast), background var(--fast);
+    }
+    .liquid-button:hover {
+      transform: translateY(-1px);
+      border-color: var(--glass-border-strong);
+      background: var(--glass-fill-hover);
+    }
+    .liquid-button.primary {
+      color: rgba(226,241,255,.96);
+      background: rgba(58,135,214,.20);
+      border-color: rgba(112,184,255,.12);
+    }
+    :root[data-theme="light"] .liquid-button.primary {
+      color: #315f89;
+      background: rgba(125,190,255,.16);
+      border-color: rgba(80,150,220,.15);
+    }
 
-mjx-container[jax="SVG"][justify="left"] {
-  text-align: left;
-}
+    .hero-lattice {
+      position: relative;
+      height: 470px;
+      perspective: 900px;
+    }
+    .lattice-plane {
+      position: absolute;
+      width: 76%;
+      height: 58%;
+      left: 10%;
+      top: 21%;
+      border: 1px solid var(--hairline);
+      transform: rotateX(62deg) rotateZ(-16deg);
+    }
+    .plane-b { transform: translateY(-54px) rotateX(62deg) rotateZ(-16deg); }
+    .plane-c { transform: translateY(54px) rotateX(62deg) rotateZ(-16deg); }
+    .atom {
+      --x:0; --y:0; --z:0;
+      position: absolute;
+      left: calc(15% + var(--x) * 29% + var(--z) * 6%);
+      top: calc(19% + var(--y) * 25% - var(--z) * 5%);
+      width: 11px;
+      height: 11px;
+      border: 1px solid var(--text-secondary);
+      border-radius: 50%;
+      background: var(--bg);
+      box-shadow: 0 0 0 8px color-mix(in srgb,var(--text) 4%,transparent);
+      animation: breathe 3.6s ease-in-out calc((var(--x) + var(--y)) * -.18s) infinite;
+    }
+    .wave {
+      position: absolute;
+      left: -5%;
+      top: 22%;
+      width: 110%;
+      overflow: visible;
+    }
+    .wave path {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 1.5;
+      stroke-dasharray: 7 9;
+      opacity: .78;
+      animation: dash 2.8s linear infinite;
+    }
+    .hero-label {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding-left: 12px;
+      border-left: 1px solid var(--hairline-strong);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: .74rem;
+    }
+    .hero-label small { color: var(--text-tertiary); font-size: .56rem; }
+    .label-a { left: 2%; top: 12%; }
+    .label-b { right: 3%; top: 18%; }
+    .label-c { right: 2%; bottom: 15%; }
 
-mjx-container[jax="SVG"][justify="right"] {
-  text-align: right;
-}
+    .section-head {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 22px;
+      align-items: start;
+      padding: 122px 0 48px;
+      border-top: 1px solid var(--hairline);
+      margin-top: 72px;
+    }
+    .section-number {
+      margin-top: 9px;
+      color: var(--text-tertiary);
+      font-size: .72rem;
+      letter-spacing: .12em;
+    }
+    .section-head h2 {
+      margin: 0 0 18px;
+      font-size: clamp(2.1rem,4vw,4.2rem);
+      line-height: 1.04;
+      letter-spacing: -.045em;
+      font-weight: 560;
+    }
+    .section-head p {
+      max-width: 730px;
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.65;
+    }
 
-g[data-mml-node="merror"] > g {
-  fill: red;
-  stroke: red;
-}
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 18px;
+    }
+    .project-card {
+      min-height: 390px;
+      display: flex;
+      flex-direction: column;
+      padding: 34px;
+      border-radius: 26px;
+      text-decoration: none;
+      transition: transform var(--panel) var(--ease), border-color var(--fast), background var(--fast);
+    }
+    .project-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--glass-border-strong);
+      background: var(--glass-fill-hover);
+    }
+    .project-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 52px;
+    }
+    .project-index {
+      color: var(--text-tertiary);
+      font-size: .66rem;
+      letter-spacing: .12em;
+    }
+    .project-icon {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--hairline);
+      border-radius: 18px;
+      color: var(--accent);
+      background: var(--surface);
+    }
+    .project-icon svg { width: 26px; height: 26px; }
+    .project-card h3 {
+      margin: 0 0 16px;
+      font-size: clamp(2rem,3.7vw,3.45rem);
+      line-height: 1.04;
+      letter-spacing: -.04em;
+      font-weight: 560;
+    }
+    .project-card p {
+      max-width: 520px;
+      margin: 0 0 34px;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: auto;
+    }
+    .project-meta span {
+      padding: 7px 10px;
+      border: 1px solid var(--hairline);
+      border-radius: 999px;
+      color: var(--text-tertiary);
+      font-size: .63rem;
+      letter-spacing: .03em;
+    }
+    .project-enter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      color: var(--text);
+      font-size: .84rem;
+    }
+    .project-enter svg { transition: transform var(--fast) var(--ease); }
+    .project-card:hover .project-enter svg { transform: translateX(4px); }
 
-g[data-mml-node="merror"] > rect[data-background] {
-  fill: yellow;
-  stroke: none;
-}
+    .tool-strip {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      margin-top: 18px;
+      border: 1px solid var(--hairline);
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    .tool-strip a {
+      min-height: 102px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 20px 26px;
+      text-decoration: none;
+      border-right: 1px solid var(--hairline);
+      transition: background var(--fast);
+    }
+    .tool-strip a:last-child { border-right: 0; }
+    .tool-strip a:hover { background: var(--surface); }
+    .tool-strip span { color: var(--text-tertiary); font-size: .62rem; letter-spacing: .08em; }
+    .tool-strip strong { font-size: .82rem; font-weight: 520; }
+    .tool-strip small { color: var(--text-tertiary); font-size: .68rem; }
 
-g[data-mml-node="mtable"] > line[data-line] {
-  stroke-width: 70px;
-  fill: none;
-}
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 38px 0 12px;
+      color: var(--text-tertiary);
+      font-size: .64rem;
+      letter-spacing: .04em;
+    }
 
-g[data-mml-node="mtable"] > rect[data-frame] {
-  stroke-width: 70px;
-  fill: none;
-}
+    @keyframes breathe {
+      0%,100% { transform: scale(.92); opacity: .68; }
+      50% { transform: scale(1.16); opacity: 1; }
+    }
+    @keyframes dash { to { stroke-dashoffset: -32; } }
 
-g[data-mml-node="mtable"] > .mjx-dashed {
-  stroke-dasharray: 140;
-}
+    @media (max-width: 900px) {
+      .site-header {
+        grid-template-columns: 1fr auto;
+        left: 10px;
+        right: 10px;
+      }
+      .header-center { display: none; }
+      main {
+        width: min(calc(100% - 24px), var(--max));
+        padding-top: 112px;
+      }
+      .hero {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        padding: 42px 28px 28px;
+      }
+      .hero-lattice { height: 360px; }
+      .projects { grid-template-columns: 1fr; }
+      .section-head { grid-template-columns: 48px 1fr; padding-top: 86px; }
+      .tool-strip { grid-template-columns: 1fr; }
+      .tool-strip a { border-right: 0; border-bottom: 1px solid var(--hairline); }
+      .tool-strip a:last-child { border-bottom: 0; }
+    }
 
-g[data-mml-node="mtable"] > .mjx-dotted {
-  stroke-linecap: round;
-  stroke-dasharray: 0,140;
-}
+    @media (max-width: 560px) {
+      .site-header { height: 60px; padding-left: 12px; }
+      .brand strong { font-size: .94rem; }
+      .brand small { font-size: .5rem; }
+      .brand-glyph { transform: scale(.9) rotate(30deg) skew(-5deg); }
+      .top-action { width: 42px; height: 42px; }
+      .hero { padding: 36px 22px 22px; border-radius: 24px; }
+      h1 { font-size: clamp(3rem,16vw,4.6rem); }
+      .hero-lattice { height: 300px; margin-top: -16px; }
+      .project-card { min-height: 330px; padding: 26px; }
+      .section-head { display: block; }
+      .section-number { margin-bottom: 14px; }
+      footer { flex-direction: column; }
+    }
 
-g[data-mml-node="mtable"] > svg {
-  overflow: visible;
-}
-
-[jax="SVG"] mjx-tool {
-  display: inline-block;
-  position: relative;
-  width: 0;
-  height: 0;
-}
-
-[jax="SVG"] mjx-tool > mjx-tip {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-mjx-tool > mjx-tip {
-  display: inline-block;
-  padding: .2em;
-  border: 1px solid #888;
-  font-size: 70%;
-  background-color: #F8F8F8;
-  color: black;
-  box-shadow: 2px 2px 5px #AAAAAA;
-}
-
-g[data-mml-node="maction"][data-toggle] {
-  cursor: pointer;
-}
-
-mjx-status {
-  display: block;
-  position: fixed;
-  left: 1em;
-  bottom: 1em;
-  min-width: 25%;
-  padding: .2em .4em;
-  border: 1px solid #888;
-  font-size: 90%;
-  background-color: #F8F8F8;
-  color: black;
-}
-
-foreignObject[data-mjx-xml] {
-  font-family: initial;
-  line-height: normal;
-  overflow: visible;
-}
-
-.MathJax path {
-  stroke-width: 3;
-}
-
-mjx-container[display="true"] {
-  overflow: auto hidden;
-}
-
-mjx-container[display="true"] + br {
-  display: none;
-}
-</style></head>
-
-
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
 <body>
-<div class="progress-bar-container">
-    
-
-    
-</div>
-
-
-
-<main class="page-container border-box">
-    <!-- home first screen  -->
-    
-        
-<div class="first-screen-container border-box flex-center fade-in-down-animation">
-    <div class="first-screen-content border-box">
-        <div class="top-placeholder border-box"></div>
-
-        <div class="middle-placeholder border-box">
-            
-                <div class="description border-box">
-                    
-                        
-                            
-                                <div class="desc-item border-box"><span class="desc">Per Aspera Ad Astra</span><span class="cursor">｜</span></div>
-                            
-                        
-                    
-                </div>
-            
-
-            
-        </div>
-
-        <div class="bottom-placeholder border-box">
-            
-                <div class="sc-icon-list border-box">
-                    <!-- fontawesome icons -->
-                    
-                        
-                            
-                            <div class="tooltip sc-icon-item "
-                                 data-tooltip-content="GitHub"
-                                 
-                                 
-                            >
-                                
-                                    
-                                    
-                                        <a target="_blank" href="https://github.com/Tinsense">
-                                            <i class="fab fa-github"></i>
-                                        </a>
-                                    
-                                
-                            </div>
-                        
-                    
-                        
-                            
-                            <div class="tooltip sc-icon-item tooltip-img clear"
-                                 data-tooltip-content="微信"
-                                 data-tooltip-img-name=weixin
-                                 data-tooltip-img-url=./images/qrcode.jpg
-                            >
-                                
-                                    
-                                    
-                                        <i class="fab fa-weixin"></i>
-                                    
-                                
-                            </div>
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                            
-                            <div class="tooltip sc-icon-item "
-                                 data-tooltip-content="Email"
-                                 
-                                 
-                            >
-                                
-                                    <a href="mailto:chr_iccas_ucas@163.com">
-                                        <i class="fas fa-envelope"></i>
-                                    </a>
-                                
-                            </div>
-                        
-                    
-
-                    <!-- custom svg icons -->
-                    
-                    
-                </div>
-            
-        </div>
+  <header class="site-header liquid-panel">
+    <a class="brand" href="/" aria-label="返回主页">
+      <span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span><strong>晶格</strong><small>MATERIALS LEARNING STUDIO</small></span>
+    </a>
+    <div class="header-center"><span>HOME</span><p>Solid-state learning<br>and research tools</p></div>
+    <div class="header-actions">
+      <button class="top-action" id="theme-toggle" type="button" aria-label="切换明暗主题">
+        <svg class="icon" id="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.5"></circle>
+          <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>
+        </svg>
+      </button>
     </div>
-</div>
+  </header>
 
-    
-
-    <!-- page content -->
-    <div class="page-main-content border-box is-home">
-        <div class="page-main-content-top">
-            
-<header class="header-wrapper transparent-1">
-
-    <div class="border-box header-content has-first-screen">
-        <div class="left flex-start border-box">
-            
-                <a class="logo-image border-box" href="/">
-                    <img src="/images/Chen.jpg">
-                </a>
-            
-            <a class="site-name border-box" href="/">
-               Chenn Lab
-            </a>
+  <main>
+    <section class="hero liquid-panel" aria-labelledby="hero-title">
+      <div>
+        <p class="overline">INTERACTIVE LEARNING · MATERIALS RESEARCH</p>
+        <h1 id="hero-title">从晶格出发，<br><span>连接物理与材料。</span></h1>
+        <p class="hero-lead">统一的交互式学习与研究入口。进入 Kittel 固体物理学习空间，或打开二维相图工具，用同一套视觉语言组织知识、数据与材料直觉。</p>
+        <div class="hero-actions">
+          <a class="liquid-button primary" href="/Solid-state-learning/">
+            <span>开始固体物理学习</span>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg>
+          </a>
+          <a class="liquid-button" href="#projects">浏览工具</a>
         </div>
+      </div>
 
-        <div class="right border-box">
-            <div class="pc border-box">
-                <ul class="menu-list border-box">
-                    
-                        
-                        <li class="menu-item flex-start border-box active">
-                            <a class="menu-text-color border-box" href="/">
-                                
-                                    <i class="menu-text-color menu-icon fa-solid fa-home"></i>
-                                
-                                首页
-                                
-                            </a>
-                            
-                        </li>
-                    
-                        
-                        <li class="menu-item flex-start border-box">
-                            <a class="menu-text-color border-box" href="/archives">
-                                
-                                    <i class="menu-text-color menu-icon fa-regular fa-file"></i>
-                                
-                                归档
-                                
-                            </a>
-                            
-                        </li>
-                    
-                        
-                        <li class="menu-item flex-start border-box has-sub-menu">
-                            <a class="menu-text-color border-box" href="javascript:void(0);">
-                                
-                                    <i class="menu-text-color menu-icon fa-solid fa-book"></i>
-                                
-                                文库
-                                
-                                    <i class="menu-text-color collapse-icon fa-solid fa-angle-down"></i>
-                                
-                            </a>
-                            
-                                <ul class="sub-menu-list border-box">
-                                    
-                                        
-                                        <li class="sub-menu-item border-box ">
-                                            <a class="menu-text-color border-box flex-start" href="/categories">
-                                                
-                                                    <i class="menu-text-color sub-menu-icon fa-solid fa-layer-group"></i>
-                                                
-                                                分类
-                                            </a>
-                                        </li>
-                                    
-                                        
-                                        <li class="sub-menu-item border-box ">
-                                            <a class="menu-text-color border-box flex-start" href="/tags">
-                                                
-                                                    <i class="menu-text-color sub-menu-icon fa-solid fa-tags"></i>
-                                                
-                                                标签
-                                            </a>
-                                        </li>
-                                    
-                                </ul>
-                            
-                        </li>
-                    
-                        
-                        <li class="menu-item flex-start border-box">
-                            <a class="menu-text-color border-box" href="/about">
-                                
-                                    <i class="menu-text-color menu-icon fa-solid fa-user-graduate"></i>
-                                
-                                关于
-                                
-                            </a>
-                            
-                        </li>
-                    
-                    
-                </ul>
-            </div>
-            <div class="mobile border-box flex-start">
-                
-                <div class="icon-item menu-bar">
-                    <div class="menu-bar-middle"></div>
-                </div>
-            </div>
+      <div class="hero-lattice" aria-label="三维晶格与波的抽象动画" role="img">
+        <div class="lattice-plane"></div>
+        <div class="lattice-plane plane-b"></div>
+        <div class="lattice-plane plane-c"></div>
+        <div id="atoms"></div>
+        <svg class="wave" viewBox="0 0 500 250" aria-hidden="true">
+          <path d="M15 128c55-90 108 90 164 0s109-90 164 0 109 90 150 0"></path>
+        </svg>
+        <span class="hero-label label-a">U(R)<small>interaction</small></span>
+        <span class="hero-label label-b">ΔE<small>descriptor</small></span>
+        <span class="hero-label label-c">phase space<small>map</small></span>
+      </div>
+    </section>
+
+    <section id="projects" aria-labelledby="projects-title">
+      <div class="section-head">
+        <span class="section-number">01</span>
+        <div>
+          <p class="overline">LEARNING & RESEARCH PORTALS</p>
+          <h2 id="projects-title">选择你的路径。</h2>
+          <p>主页不再只是文章列表，而是两个核心空间的统一入口。界面语言与固体物理学习站保持一致，进入不同项目时仍有连续的视觉体验。</p>
         </div>
-    </div>
+      </div>
 
-    <div class="header-drawer">
-        <ul class="drawer-menu-list border-box">
-            
-                
-                <li class="drawer-menu-item border-box not-sub-menu active">
-                    <label class="drawer-menu-label border-box">
-                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/">
-                            
-                                <span class="menu-icon-wrap border-box flex-center">
-                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-home"></i>
-                                </span>
-                            
-                            首页
-                        </a>
-                        
-                    </label>
-                    
-                </li>
-            
-                
-                <li class="drawer-menu-item border-box not-sub-menu">
-                    <label class="drawer-menu-label border-box">
-                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/archives">
-                            
-                                <span class="menu-icon-wrap border-box flex-center">
-                                    <i class="drawer-menu-text-color menu-icon fa-regular fa-file"></i>
-                                </span>
-                            
-                            归档
-                        </a>
-                        
-                    </label>
-                    
-                </li>
-            
-                
-                <li class="drawer-menu-item border-box has-sub-menu">
-                    <label class="drawer-menu-label border-box">
-                        <a class="drawer-menu-text-color left-side flex-start border-box" href="javascript:void(0);">
-                            
-                                <span class="menu-icon-wrap border-box flex-center">
-                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-book"></i>
-                                </span>
-                            
-                            文库
-                        </a>
-                        
-                            <i class="right-side collapse-icon fa-solid fa-angle-left"></i>
-                        
-                    </label>
-                    
-                        <ul class="drawer-sub-menu-list border-box">
-                            
-                                
-                                <li class="sub-menu-item border-box">
-                                    <a class="drawer-menu-text-color border-box flex-start" href="/categories">
-                                        
-                                            <span class="sub-menu-icon-wrap border-box flex-center">
-                                                <i class="drawer-menu-text-color sub-menu-icon fa-solid fa-layer-group"></i>
-                                            </span>
-                                        
-                                        分类
-                                    </a>
-                                </li>
-                            
-                                
-                                <li class="sub-menu-item border-box">
-                                    <a class="drawer-menu-text-color border-box flex-start" href="/tags">
-                                        
-                                            <span class="sub-menu-icon-wrap border-box flex-center">
-                                                <i class="drawer-menu-text-color sub-menu-icon fa-solid fa-tags"></i>
-                                            </span>
-                                        
-                                        标签
-                                    </a>
-                                </li>
-                            
-                        </ul>
-                    
-                </li>
-            
-                
-                <li class="drawer-menu-item border-box not-sub-menu">
-                    <label class="drawer-menu-label border-box">
-                        <a class="drawer-menu-text-color left-side flex-start border-box" href="/about">
-                            
-                                <span class="menu-icon-wrap border-box flex-center">
-                                    <i class="drawer-menu-text-color menu-icon fa-solid fa-user-graduate"></i>
-                                </span>
-                            
-                            关于
-                        </a>
-                        
-                    </label>
-                    
-                </li>
-            
-        </ul>
-    </div>
-
-    <div class="window-mask"></div>
-
-</header>
-
-
-        </div>
-
-        <div class="page-main-content-middle border-box">
-
-            <div class="main-content border-box">
-                
-
-                    <div class="home-content-container fade-in-down-animation">
-    
-    <ul class="home-post-list border-box">
-        
-            <li class="home-post-item">
-
-                
-
-                <div class="home-post-item-bottom border-box">
-                    
-                    <h3 class="home-post-title border-box">
-                        <a href="/2024/11/26/Slaterrule/">
-                            Slater-rule
-                        </a>
-                    </h3>
-
-                    <div class="home-post-content keep-markdown-body">
-                        
-                            Condon-Slater定则的推导
-                        
-                    </div>
-
-                    
-
-<div class="post-meta-info-container border-box home">
-    <div class="post-meta-info border-box">
-        
-            <span class="meta-info-item border-box">
-                <i class="icon fa-solid fa-history"></i>&nbsp;<span class="home-post-history"
-                                                                                data-updated="Tue Nov 26 2024 20:06:34 GMT+0800"
-                >2024-11-26 20:06:34</span>
+      <div class="projects">
+        <a class="project-card" href="/Solid-state-learning/">
+          <div class="project-top">
+            <span class="project-index">PORTAL · 01</span>
+            <span class="project-icon">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="6" cy="12" r="2.2"></circle><circle cx="12" cy="6" r="2.2"></circle><circle cx="18" cy="12" r="2.2"></circle><circle cx="12" cy="18" r="2.2"></circle>
+                <path d="M7.6 10.4 10.4 7.6m3.2 0 2.8 2.8m0 3.2-2.8 2.8m-3.2 0-2.8-2.8"></path>
+              </svg>
             </span>
-        
+          </div>
+          <h3>固体物理学习</h3>
+          <p>Kittel 固体物理交互教材。用晶格、势能、弹性、声子与能带等可视化模块，把公式推导、概念检查和交互实验放在同一条学习路径中。</p>
+          <div class="project-meta"><span>KITTEL</span><span>INTERACTIVE TEXTBOOK</span><span>中文精讲</span></div>
+          <div class="project-enter">进入学习空间
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg>
+          </div>
+        </a>
 
-        
-
-        
-
-        
-
-        
-        
-        
-        
-    </div>
-
-    
-        <a class="home-read-more" href="/2024/11/26/Slaterrule/">阅读全文&nbsp;<i class="icon fas fa-angle-right"></i></a>
-    
-</div>
-
-                </div>
-            </li>
-        
-            <li class="home-post-item">
-
-                
-
-                <div class="home-post-item-bottom border-box">
-                    
-                    <h3 class="home-post-title border-box">
-                        <a href="/2024/11/24/work3/">
-                            量子化学习题 3
-                        </a>
-                    </h3>
-
-                    <div class="home-post-content keep-markdown-body">
-                        
-                            国科大量子化学作业
-                        
-                    </div>
-
-                    
-
-<div class="post-meta-info-container border-box home">
-    <div class="post-meta-info border-box">
-        
-            <span class="meta-info-item border-box">
-                <i class="icon fa-solid fa-history"></i>&nbsp;<span class="home-post-history"
-                                                                                data-updated="Tue Nov 26 2024 22:53:52 GMT+0800"
-                >2024-11-26 22:53:52</span>
+        <a class="project-card" href="/metal-bde-square/">
+          <div class="project-top">
+            <span class="project-index">PORTAL · 02</span>
+            <span class="project-icon">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 20V4m0 16h16"></path>
+                <circle cx="9" cy="14" r="1.4"></circle><circle cx="14.5" cy="9" r="1.4"></circle><circle cx="17.5" cy="15.5" r="1.4"></circle>
+                <path d="M6 17 18 6"></path>
+              </svg>
             </span>
-        
-
-        
-
-        
-
-        
-
-        
-        
-        
-        
-    </div>
-
-    
-        <a class="home-read-more" href="/2024/11/24/work3/">阅读全文&nbsp;<i class="icon fas fa-angle-right"></i></a>
-    
-</div>
-
-                </div>
-            </li>
-        
-            <li class="home-post-item">
-
-                
-
-                <div class="home-post-item-bottom border-box">
-                    
-                    <h3 class="home-post-title border-box">
-                        <a href="/2024/11/16/hello-world/">
-                            Hello World
-                        </a>
-                    </h3>
-
-                    <div class="home-post-content keep-markdown-body">
-                        
-                            Welcome to Hexo! This is your very
-first post. Check documentation for
-more info. If you get any problems when using Hexo, ...
-                        
-                    </div>
-
-                    
-
-<div class="post-meta-info-container border-box home">
-    <div class="post-meta-info border-box">
-        
-            <span class="meta-info-item border-box">
-                <i class="icon fa-solid fa-history"></i>&nbsp;<span class="home-post-history"
-                                                                                data-updated="Sat Nov 16 2024 21:33:20 GMT+0800"
-                >2024-11-16 21:33:20</span>
-            </span>
-        
-
-        
-
-        
-
-        
-
-        
-        
-        
-        
-    </div>
-
-    
-        <a class="home-read-more" href="/2024/11/16/hello-world/">阅读全文&nbsp;<i class="icon fas fa-angle-right"></i></a>
-    
-</div>
-
-                </div>
-            </li>
-        
-    </ul>
-    
-
-
-
-</div>
-
-
-                
-            </div>
-        </div>
-
-        <div class="page-main-content-bottom border-box">
-            
-<footer class="footer border-box">
-    <div class="copyright-info info-item">
-        &copy;&nbsp;<span>2020</span>&nbsp;-&nbsp;2024
-        
-            &nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;&nbsp;<a href="/">Tin</a>
-        
-    </div>
-
-    <div class="theme-info info-item">
-        由&nbsp;<a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;驱动&nbsp;&&nbsp;主题&nbsp;<a class="keep-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep</a>
-    </div>
-
-    
-
-    
-
-    
-</footer>
-
-        </div>
-    </div>
-
-    <!-- post tools -->
-    
-
-    <!-- side tools -->
-    <div class="side-tools">
-        <div class="side-tools-container border-box side-tools-show-handle">
-    <ul class="side-tools-list side-tools-show-handle border-box">
-        <li class="tools-item tool-font-adjust-plus flex-center">
-            <i class="fas fa-search-plus"></i>
-        </li>
-
-        <li class="tools-item tool-font-adjust-minus flex-center">
-            <i class="fas fa-search-minus"></i>
-        </li>
-
-        <!-- toggle mode -->
-        
-            <li class="tools-item tool-toggle-theme-mode flex-center">
-                <i class="fas fa-moon"></i>
-            </li>
-        
-
-        <!-- rss -->
-        
-
-        <!-- to bottom -->
-        <li class="tools-item tool-scroll-to-bottom flex-center">
-            <i class="fas fa-arrow-down"></i>
-        </li>
-    </ul>
-
-    <ul class="exposed-tools-list border-box">
-        
-
-        
-
-        <li class="tools-item tool-toggle-show flex-center">
-            <i class="fas fa-cog fa-spin"></i>
-        </li>
-
-        <li class="tools-item tool-scroll-to-top flex-center show-arrow">
-            <i class="arrow fas fa-arrow-up"></i>
-            <span class="percent"></span>
-        </li>
-    </ul>
-</div>
-
-    </div>
-
-    <!-- image mask -->
-    <div class="zoom-in-image-mask">
-    <img class="zoom-in-image">
-</div>
-
-
-    <!-- local search -->
-    
-
-    <!-- tablet toc -->
-    
-</main>
-
-
-
-
-
-
-<!-- common js -->
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/header-shrink.js"></script>
-
-<script src="/js/back2top.js"></script>
-
-<script src="/js/toggle-theme.js"></script>
-
-<script src="/js/code-block.js"></script>
-
-<script src="/js/main.js"></script>
-
-<script src="/js/libs/anime.min.js"></script>
-
-
-<!-- local search -->
-
-
-<!-- lazyload -->
-
-
-<div class="">
-    <!-- home page -->
-    
-        
-<script src="/js/page/home-page.js"></script>
-
-    
-
-    <!-- post page -->
-    
-
-    <!-- categories page -->
-    
-
-    <!-- links page -->
-    
-
-    <!-- photos page -->
-    
-
-    <!-- tools page -->
-    
-</div>
-
-<!-- mermaid -->
-
-
-<!-- pjax -->
-
-
-
+          </div>
+          <h3>二维相图构建</h3>
+          <p>进入 M–S / M–Cl 二维交互图，以键能与描述符为坐标建立材料化学地图，查看区域划分、元素位置和已报道 SCl₃⁺ 络盐信息。</p>
+          <div class="project-meta"><span>2D MAP</span><span>M–S / M–Cl</span><span>INTERACTIVE</span></div>
+          <div class="project-enter">打开二维相图
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg>
+          </div>
+        </a>
+      </div>
+
+      <div class="tool-strip" aria-label="更多研究工具与归档">
+        <a href="/metal-formation-energy/">
+          <span>RESEARCH TOOL</span><strong>Materials Project 形成能图</strong><small>formation energy explorer</small>
+        </a>
+        <a href="/metal-bde/">
+          <span>RESEARCH TOOL</span><strong>金属键能数据</strong><small>M–S / M–Cl descriptor data</small>
+        </a>
+        <a href="/archives/">
+          <span>ARCHIVE</span><strong>旧站文章归档</strong><small>notes & previous posts</small>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <span>TIN · MATERIALS LEARNING STUDIO</span>
+      <span>Per Aspera Ad Astra</span>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const saved = localStorage.getItem("kittel-theme");
+      const theme = saved === "light" || saved === "dark" ? saved : "dark";
+      root.dataset.theme = theme;
+
+      const atoms = document.getElementById("atoms");
+      for (let i = 0; i < 27; i++) {
+        const atom = document.createElement("i");
+        atom.className = "atom";
+        atom.style.setProperty("--x", i % 3);
+        atom.style.setProperty("--y", Math.floor(i / 3) % 3);
+        atom.style.setProperty("--z", Math.floor(i / 9));
+        atoms.appendChild(atom);
+      }
+
+      const button = document.getElementById("theme-toggle");
+      const icon = document.getElementById("theme-icon");
+      const sun = '<circle cx="12" cy="12" r="3.5"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>';
+      const moon = '<path d="M20 15.6A8.5 8.5 0 0 1 8.4 4 8.5 8.5 0 1 0 20 15.6Z"></path>';
+
+      function syncIcon() {
+        icon.innerHTML = root.dataset.theme === "dark" ? sun : moon;
+      }
+      syncIcon();
+
+      button.addEventListener("click", function () {
+        root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+        localStorage.setItem("kittel-theme", root.dataset.theme);
+        syncIcon();
+      });
+    })();
+  </script>
 </body>
 </html>
