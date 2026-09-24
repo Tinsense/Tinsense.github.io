@@ -39,7 +39,7 @@ function renderPhaseList(items,targetId){
   for(const p of items){
     rows+='<div class="phase-row"><code>'+formulaHTML(p.formula)+'</code><span class="oxi">'+oxi(p.metal_oxi)+'</span><span>'+fmt(p.e_form)+'</span><a href="'+mpUrl(p.mpid)+'" target="_blank" rel="noreferrer">'+p.mpid+'</a></div>';
   }
-  el.innerHTML='<div class="phase-row head"><span>化学式</span><span>M价态</span><span>E<sub>f</sub></span><span>MP-ID</span></div>'+rows;
+  el.innerHTML='<div class="phase-row head"><span>化学式</span><span>M价态候选</span><span>E<sub>f</sub></span><span>MP-ID</span></div>'+rows;
 }
 
 function selectMetal(m){
@@ -47,7 +47,7 @@ function selectMetal(m){
   let extra='';
   if(LINA.has(m)) extra=' · Li/Na 高亮';
   if(REPORTED_SCL3[m]) extra=' · 已报道 SCl3+ 络盐：'+REPORTED_SCL3[m].join('，');
-  document.getElementById('phaseSubtitle').textContent='E_f 单位 eV/atom；M价态显示 pymatgen 基于化学式给出的全部 oxidation-state candidates；含 S–S 的相可能存在多解'+extra;
+  document.getElementById('phaseSubtitle').textContent='E_f 单位 eV/atom；M价态候选由化学计量电荷守恒 + pymatgen 元素允许氧化态生成；含 S–S 的相可能存在多解'+extra;
   const p=phases[m]||{};
   renderPhaseList(p.sulfides||[],'sulfideList');
   renderPhaseList(p.chlorides||[],'chlorideList');
