@@ -32,6 +32,21 @@ function pointColor(m){return LINA.has(m)?'#0284c7':REPORTED_SCL3[m]?'#e11d48':'
 function pointRadius(m){return (LINA.has(m)||REPORTED_SCL3[m])?7.2:5.2}
 function oxiCandidates(p){const a=p&&p.metal_oxi_candidates;return Array.isArray(a)&&a.length?a.map(oxi).join(' / '):'—'}
 
+function renderReportedStrip(){
+  const el=document.getElementById('scl3Strip');
+  if(!el)return;
+  el.innerHTML='';
+  Object.keys(REPORTED_SCL3).forEach(m=>{
+    const b=document.createElement('button');
+    b.className='reported-chip';
+    const vals=(data.filter(d=>d.m===m).map(d=>oxi(d.valence)));
+    b.textContent=m+(vals.length?' · '+vals.join('/'):' · no matched point');
+    b.title=REPORTED_SCL3[m].join('；');
+    b.addEventListener('click',()=>selectMetal(m));
+    el.appendChild(b);
+  });
+}
+
 function renderPhaseList(items,targetId){
   const el=document.getElementById(targetId);
   if(!items||!items.length){el.innerHTML='<div class="phase-empty">该快照中无凸包稳定二元相</div>';return}
@@ -54,6 +69,7 @@ function selectMetal(m){
 }
 
 function render(){
+  renderReportedStrip();
   document.getElementById('pointCount').textContent=data.length||'0';
   document.getElementById('metalCount').textContent=new Set(data.map(d=>d.m)).size||'0';
   const dt=meta.generated_at_utc?new Date(meta.generated_at_utc):null;
