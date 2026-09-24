@@ -36,7 +36,7 @@
   <section class="phase-panel">
     <div class="phase-head">
       <div><div class="eyebrow">ALL STABLE BINARY PHASES</div><h2 id="phaseTitle">点击图中元素查看不同价态相</h2></div>
-      <p id="phaseSubtitle">形成能与价态来自同一 MP 快照；价态候选由化学计量电荷守恒 + pymatgen 元素允许氧化态生成；含 S–S 的硫化物可能存在多解。</p>
+      <p id="phaseSubtitle">形成能与价态来自同一 MP 快照；氯化物按 Cl⁻ 配平；硫化物同时保留 S²⁻ 与 S⁻（二硫/多硫近似）两套金属形式价态候选。</p>
     </div>
     <div class="phase-columns">
       <div><h3>M–S 稳定相</h3><div id="sulfideList" class="phase-list"></div></div>
@@ -50,7 +50,7 @@
     </article>
     <article>
       <h2>筛选规则</h2>
-      <p>每个 M 只比较 <b>二元、凸包稳定（stability = 0）</b> 的 M–S 和 M–Cl 条目。对每个稳定二元相根据化学计量电荷守恒和 pymatgen 元素允许氧化态生成金属价态候选；只有硫化物与氯化物共享同一金属价态候选（±0.06）才形成二维点。同一价态存在多个稳定化学计量时取形成能最负者；下方明细保留该元素全部稳定二元相。</p>
+      <p>每个 M 只比较 <b>二元、凸包稳定（stability = 0）</b> 的 M–S 和 M–Cl 条目。氯化物按 Cl⁻ 直接得到金属形式价态；硫化物分别按 S²⁻ 与 S⁻ 两种极限生成金属价态候选。只有硫化物与氯化物共享同一候选价态（±0.06）才形成二维点。同一价态存在多个稳定化学计量时取形成能最负者；下方明细保留该元素全部稳定二元相。</p>
     </article>
     <article>
       <h2>数据源</h2>
