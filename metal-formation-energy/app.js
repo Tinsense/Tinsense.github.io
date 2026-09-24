@@ -11,12 +11,12 @@ function group(m){return groups.alkali.has(m)?'alkali':groups.post.has(m)?'post'
 function E(n,a={}){const e=document.createElementNS(NS,n);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);return e}
 function fmt(v){return Number(v).toFixed(3)}
 function formulaHTML(s){return String(s||'—').replace(/(\d+)/g,'<sub>$1</sub>')}
-function entryUrl(id){return id?`https://oqmd.org/materials/entry/${id}`:'https://oqmd.org/'}
+function entryUrl(id){return id?`https://materialsproject.org/materials/${id}`:'https://materialsproject.org/'}
 function render(){
   document.getElementById('pointCount').textContent=data.length||'0';
   const dt=meta.generated_at_utc?new Date(meta.generated_at_utc):null;
   document.getElementById('updatedAt').textContent=dt&&!isNaN(dt)?dt.toISOString().slice(0,10):'pending';
-  document.getElementById('sourceText').textContent=`Source: ${meta.source||'OQMD'} · ${meta.energy_unit||'eV/atom'}`;
+  document.getElementById('sourceText').textContent=`Source: ${meta.source||'Materials Project'} · snapshot ${meta.snapshot_date||'—'} · ${meta.energy_unit||'eV/atom'}`;
   svg.innerHTML='';
   if(!data.length){
     const t=E('text',{x:460,y:360,'text-anchor':'middle','font-size':18,fill:'#64748b'});
@@ -51,7 +51,7 @@ function render(){
     const show=(ev)=>{
       const delta=d.delta_s_minus_cl;
       const verdict=delta<0?`<span class="good">硫化物更负 ${Math.abs(delta).toFixed(3)} eV/atom</span>`:`<span class="warm">氯化物更负 ${Math.abs(delta).toFixed(3)} eV/atom</span>`;
-      tip.innerHTML=`<b>${d.m}</b><br>M–S: ${formulaHTML(d.sulfide_formula)} <span class="muted">#${d.sulfide_entry_id??'—'}</span><br>E<sub>f</sub> = ${fmt(d.sulfide_e)} eV/atom · stable phases: ${d.sulfide_stable_count}<br>M–Cl: ${formulaHTML(d.chloride_formula)} <span class="muted">#${d.chloride_entry_id??'—'}</span><br>E<sub>f</sub> = ${fmt(d.chloride_e)} eV/atom · stable phases: ${d.chloride_stable_count}<br>Δ(S−Cl) = ${delta>=0?'+':''}${fmt(delta)} eV/atom<br>${verdict}`;
+      tip.innerHTML=`<b>${d.m}</b><br>M–S: ${formulaHTML(d.sulfide_formula)} <span class="muted">#${d.sulfide_entry_id??'—'}</span><br>E<sub>f</sub> = ${fmt(d.sulfide_e)} eV/atom · E<sub>hull</sub> = ${Number(d.sulfide_e_hull||0).toFixed(6)}<br>stable phases: ${d.sulfide_stable_count}<br>M–Cl: ${formulaHTML(d.chloride_formula)} <span class="muted">#${d.chloride_entry_id??'—'}</span><br>E<sub>f</sub> = ${fmt(d.chloride_e)} eV/atom · E<sub>hull</sub> = ${Number(d.chloride_e_hull||0).toFixed(6)}<br>stable phases: ${d.chloride_stable_count}<br>Δ(S−Cl) = ${delta>=0?'+':''}${fmt(delta)} eV/atom<br>${verdict}`;
       tip.style.display='block';
       const wrap=svg.parentElement.getBoundingClientRect(),px=ev.clientX-wrap.left+14,py=ev.clientY-wrap.top+14;
       tip.style.left=Math.min(px,wrap.width-340)+'px';tip.style.top=Math.max(8,py)+'px';
