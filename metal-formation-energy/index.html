@@ -12,26 +12,35 @@
     <div>
       <div class="eyebrow">PUBLIC DATABASE · MATERIALS PROJECT</div>
       <h1>M–S / M–Cl 稳定相形成能二维图</h1>
-      <p>比较不同金属 M 的稳定二元硫化物与氯化物。横轴为 M–Cl 代表稳定相形成能，纵轴为 M–S 代表稳定相形成能，单位 eV/atom。</p>
+      <p>比较不同金属 M 的稳定二元硫化物与氯化物。横轴为同一金属价态下 M–Cl 稳定相形成能，纵轴为对应 M–S 稳定相形成能，单位 eV/atom。Li/Na 与已实验报道形成 SCl₃⁺ 金属氯络盐的元素单独高亮。</p>
     </div>
     <a class="back" href="../metal-bde-square/">查看旧版 BDE 图 →</a>
   </header>
   <section class="stats">
-    <div><span id="pointCount">—</span><small>paired metals</small></div>
-    <div><span>0</span><small>eV/atom hull cutoff</small></div>
+    <div><span id="pointCount">—</span><small>matched valence pairs</small></div>
+    <div><span id="metalCount">—</span><small>metals with matched valence</small></div>
     <div><span id="updatedAt">—</span><small>data generated</small></div>
   </section>
   <section class="card">
     <div class="legend">
-      <span><i class="dot alkali"></i>碱/碱土</span>
-      <span><i class="dot transition"></i>过渡金属</span>
-      <span><i class="dot post"></i>后过渡/类金属</span>
-      <span><i class="dot lanth"></i>镧系/锕系</span>
+      <span><i class="dot lina"></i>Li / Na</span>
+      <span><i class="dot scl3"></i>实验报道 SCl₃⁺–金属氯络盐</span>
+      <span><i class="dot ordinary"></i>其他金属</span>
       <span class="line-key">— y = x</span>
     </div>
     <div class="chart-wrap">
       <svg id="plot" viewBox="0 0 920 760" role="img" aria-label="Metal sulfide versus chloride formation energy scatter plot"></svg>
       <div id="tip" class="tip"></div>
+    </div>
+  </section>
+  <section class="phase-panel">
+    <div class="phase-head">
+      <div><div class="eyebrow">ALL STABLE BINARY PHASES</div><h2 id="phaseTitle">点击图中元素查看不同价态相</h2></div>
+      <p id="phaseSubtitle">形成能与价态来自同一 MP 快照；价态为 pymatgen 基于化学式的 oxidation-state guess。</p>
+    </div>
+    <div class="phase-columns">
+      <div><h3>M–S 稳定相</h3><div id="sulfideList" class="phase-list"></div></div>
+      <div><h3>M–Cl 稳定相</h3><div id="chlorideList" class="phase-list"></div></div>
     </div>
   </section>
   <section class="note-grid">
@@ -41,7 +50,7 @@
     </article>
     <article>
       <h2>筛选规则</h2>
-      <p>每个 M 只比较 <b>二元、凸包稳定（stability = 0）</b> 的 M–S 和 M–Cl 条目。同一体系存在多个稳定化学计量时，取形成能最负的稳定相作为代表；悬浮点可查看具体化学式和 OQMD Entry ID。</p>
+      <p>每个 M 只比较 <b>二元、凸包稳定（stability = 0）</b> 的 M–S 和 M–Cl 条目。对每个稳定二元相先用 pymatgen 从化学式推断金属形式价态；只有硫化物与氯化物的 M 价态匹配（±0.06）才形成二维点。同一价态存在多个稳定化学计量时取形成能最负者；下方明细保留该元素全部稳定二元相。</p>
     </article>
     <article>
       <h2>数据源</h2>
