@@ -1,73 +1,34 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>M–S / M–Cl 稳定相形成能二维图</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000">
+<title>稳定相形成能图 · 晶格</title>
+<link rel="stylesheet" href="../css/research-shell.css"><link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="page">
-  <header class="hero">
-    <div>
-      <div class="eyebrow">PUBLIC DATABASE · MATERIALS PROJECT</div>
-      <h1>M–S / M–Cl 稳定相形成能二维图</h1>
-      <p>比较不同金属 M 的稳定二元硫化物与氯化物。横轴为同一金属价态下 M–Cl 稳定相形成能，纵轴为对应 M–S 稳定相形成能，单位 eV/atom。Li/Na 与已实验报道形成 SCl₃⁺ 金属氯络盐的元素单独高亮。</p>
-    </div>
-    <a class="back" href="../metal-bde-square/">查看旧版 BDE 图 →</a>
-  </header>
-  <section class="stats">
-    <div><span id="pointCount">—</span><small>matched valence pairs</small></div>
-    <div><span id="metalCount">—</span><small>metals with matched valence</small></div>
-    <div><span id="updatedAt">—</span><small>data generated</small></div>
-  </section>
-  <section class="reported-strip">
-    <div class="reported-title">已实验报道形成 SCl₃⁺–金属氯络盐</div>
-    <div id="scl3Strip" class="reported-chips"></div>
-    <div class="reported-note">红色点/标签 = 上述实验报道金属；Zr 暂不列入该组，因为目前只直接核实到综述列举，原始合成正文尚未直接核实。</div>
-  </section>
-  <section class="card">
-    <div class="legend">
-      <span><i class="dot lina"></i>Li / Na</span>
-      <span><i class="dot scl3"></i>实验报道 SCl₃⁺–金属氯络盐</span>
-      <span><i class="dot ordinary"></i>其他金属</span>
-      <span class="line-key">— y = x</span>
-    </div>
-    <div class="chart-wrap">
-      <svg id="plot" viewBox="0 0 920 760" role="img" aria-label="Metal sulfide versus chloride formation energy scatter plot"></svg>
-      <div id="tip" class="tip"></div>
-    </div>
-  </section>
-  <section class="phase-panel">
-    <div class="phase-head">
-      <div><div class="eyebrow">ALL STABLE BINARY PHASES</div><h2 id="phaseTitle">点击图中元素查看不同价态相</h2></div>
-      <p id="phaseSubtitle">形成能与价态来自同一 MP 快照；氯化物按 Cl⁻ 配平；硫化物同时保留 S²⁻ 与 S⁻（二硫/多硫近似）两套金属形式价态候选。</p>
-    </div>
-    <div class="phase-columns">
-      <div><h3>M–S 稳定相</h3><div id="sulfideList" class="phase-list"></div></div>
-      <div><h3>M–Cl 稳定相</h3><div id="chlorideList" class="phase-list"></div></div>
-    </div>
-  </section>
-  <section class="note-grid">
-    <article>
-      <h2>怎么读</h2>
-      <p><b>点在 y=x 下方</b>：所选稳定硫化物的形成能更负；<b>点在 y=x 上方</b>：所选稳定氯化物的形成能更负。形成能越负，表示相对于元素单质的热力学生成越有利。</p>
-    </article>
-    <article>
-      <h2>筛选规则</h2>
-      <p>每个 M 只比较 <b>二元、凸包稳定（stability = 0）</b> 的 M–S 和 M–Cl 条目。氯化物按 Cl⁻ 直接得到金属形式价态；硫化物分别按 S²⁻ 与 S⁻ 两种极限生成金属价态候选。只有硫化物与氯化物共享同一候选价态（±0.06）才形成二维点。同一价态存在多个稳定化学计量时取形成能最负者；下方明细保留该元素全部稳定二元相。</p>
-    </article>
-    <article>
-      <h2>数据源</h2>
-      <p>Materials Project 的公开全库快照（2018-10-18，matminer 分发），包含 83,989 条 MP 记录。使用 DFT formation energy 与 energy above hull；页面不把形成能直接等同于单键 M–S / M–Cl 键能。</p>
-    </article>
-  </section>
-  <footer>
-    <span id="sourceText">Source: Materials Project</span>
-    <a href="https://materialsproject.org/" target="_blank" rel="noreferrer">materialsproject.org ↗</a>
-  </footer>
+<header class="site-header">
+  <a class="brand" href="../"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><strong>晶格</strong><small>MATERIALS LEARNING STUDIO</small></span></a>
+  <div class="header-center"><span>MP · 03</span><p>Stable phase formation<br>energy explorer</p></div>
+  <div class="header-actions"><a class="header-link" href="../metal-bde-square/">二维相图</a><a class="header-link" href="../metal-bde/">键能数据</a><button class="top-action" id="theme-toggle" type="button" aria-label="切换明暗主题"><svg class="icon" id="theme-icon" viewBox="0 0 24 24"></svg></button></div>
+</header>
+
+<main class="research-page">
+<section class="page-hero">
+  <div><div class="eyebrow">PUBLIC DATABASE · MATERIALS PROJECT</div><h1>稳定相形成能二维图</h1><p>比较不同金属 M 的稳定二元硫化物与氯化物。横轴为同一形式价态下 M–Cl 稳定相形成能，纵轴为对应 M–S 稳定相形成能，单位 eV/atom；Li/Na 与已报道形成 SCl₃⁺ 金属氯络盐的元素单独高亮。</p></div>
+  <div class="hero-actions"><a class="liquid-button primary" href="../metal-bde-square/">返回键能二维图</a><a class="liquid-button" href="../">返回主页</a></div>
+</section>
+
+<section class="stats"><div><span id="pointCount">—</span><small>matched valence pairs</small></div><div><span id="metalCount">—</span><small>metals with matched valence</small></div><div><span id="updatedAt">—</span><small>data generated</small></div></section>
+
+<section class="reported-strip"><div class="section-kicker"><span>01</span><div class="section-title">已实验报道形成 SCl₃⁺–金属氯络盐</div></div><div id="scl3Strip" class="reported-chips"></div><div class="reported-note">点击元素可直接联动下方稳定二元相；Zr 暂不列入该组，因为当前只直接核实到综述列举。</div></section>
+
+<section class="card plot-card"><div class="section-kicker"><span>02</span><div class="section-title">同价态 M–S / M–Cl formation-energy map</div></div><div class="legend"><span><i class="dot lina"></i>Li / Na</span><span><i class="dot scl3"></i>实验报道 SCl₃⁺ 络盐</span><span><i class="dot ordinary"></i>其他金属</span><span class="line-key">— y = x</span></div><div class="chart-wrap"><svg id="plot" viewBox="0 0 920 760" role="img" aria-label="Metal sulfide versus chloride formation energy scatter plot"></svg><div id="tip" class="tip"></div></div></section>
+
+<section class="phase-panel"><div class="phase-head"><div><div class="eyebrow">ALL STABLE BINARY PHASES</div><h2 id="phaseTitle">点击图中元素查看不同价态相</h2></div><p id="phaseSubtitle">形成能与价态来自同一 MP 快照；氯化物按 Cl⁻ 配平；硫化物同时保留 S²⁻ 与 S⁻ 两套金属形式价态候选。</p></div><div class="phase-columns"><div><h3>M–S 稳定相</h3><div id="sulfideList" class="phase-list"></div></div><div><h3>M–Cl 稳定相</h3><div id="chlorideList" class="phase-list"></div></div></div></section>
+
+<section class="note-grid"><article><div class="eyebrow">READING</div><h2>怎么读</h2><p><b>点在 y=x 下方</b>：所选稳定硫化物的形成能更负；<b>点在 y=x 上方</b>：所选稳定氯化物形成能更负。形成能越负，表示相对于元素单质的热力学生成越有利。</p></article><article><div class="eyebrow">FILTER</div><h2>筛选规则</h2><p>只比较二元、凸包稳定条目；只有硫化物与氯化物共享同一候选价态（±0.06）时才形成二维点，同一价态存在多个稳定化学计量时取形成能最负者。</p></article><article><div class="eyebrow">SOURCE</div><h2>数据源</h2><p>Materials Project 公共快照，使用 DFT formation energy 与 energy above hull。这里不把形成能直接等同于单键 M–S / M–Cl 键能。</p></article></section>
+
+<footer class="research-footer"><span id="sourceText">Source: Materials Project</span><a href="https://materialsproject.org/" target="_blank" rel="noreferrer">materialsproject.org ↗</a></footer>
 </main>
-<script src="data.js"></script>
-<script src="app.js"></script>
-</body>
-</html>
+<script src="../js/research-shell.js"></script><script src="data.js"></script><script src="app.js"></script>
+</body></html>
