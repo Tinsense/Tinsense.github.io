@@ -1,18 +1,66 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>M–S / M–Cl 二维交互图</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>二维相图构建 · 晶格</title>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<link rel="stylesheet" href="../css/research-shell.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div style="position:fixed;top:12px;right:14px;z-index:20"><a href="../metal-formation-energy/" style="font:600 13px system-ui;text-decoration:none;color:#2563eb;background:rgba(255,255,255,.94);border:1px solid #dbe4f0;border-radius:10px;padding:8px 11px;box-shadow:0 4px 16px rgba(15,23,42,.08)">Materials Project 形成能图 →</a></div>
-<div id="root">
-  <svg id="plot" viewBox="0 0 720 720" preserveAspectRatio="xMidYMid meet" aria-label="M-S versus M-Cl interactive plot"></svg>
-  <div id="tip"></div>
-</div>
+<header class="site-header">
+  <a class="brand" href="../"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><strong>晶格</strong><small>MATERIALS LEARNING STUDIO</small></span></a>
+  <div class="header-center"><span>MAP · 01</span><p>Bond-energy descriptor<br>phase space</p></div>
+  <div class="header-actions">
+    <a class="header-link" href="../metal-bde/">数据与热力图</a>
+    <a class="header-link" href="../metal-formation-energy/">形成能图</a>
+    <button class="top-action" id="theme-toggle" type="button" aria-label="切换明暗主题"><svg class="icon" id="theme-icon" viewBox="0 0 24 24"></svg></button>
+  </div>
+</header>
+
+<main class="research-page">
+  <section class="page-hero">
+    <div>
+      <div class="eyebrow">INTERACTIVE DESCRIPTOR MAP · M–S / M–Cl</div>
+      <h1>二维相图构建</h1>
+      <p>以 M–Cl 与 M–S 键能为二维坐标，将 Li₂S / Na₂S 交换反应描述符映射到四个区域。点击或悬停元素，可直接查看 Δ、S<sub>Li</sub>、S<sub>Na</sub> 与已报道 SCl₃⁺ 络盐信息。</p>
+    </div>
+    <div class="hero-actions">
+      <a class="liquid-button primary" href="../metal-bde/">展开完整数据</a>
+      <a class="liquid-button" href="../">返回主页</a>
+    </div>
+  </section>
+
+  <section class="square-layout">
+    <div class="card plot-card">
+      <div class="section-kicker"><span>01</span><div class="section-title">M–S / M–Cl descriptor phase space</div></div>
+      <div class="plot-stage" id="root">
+        <svg id="plot" viewBox="0 0 720 720" preserveAspectRatio="xMidYMid meet" aria-label="M-S versus M-Cl interactive plot"></svg>
+        <div id="tip" class="tip"></div>
+      </div>
+    </div>
+
+    <aside class="side-stack">
+      <section class="card explainer">
+        <div class="section-kicker"><span>02</span><div class="section-title">四个区域</div></div>
+        <div class="region"><b>I</b><p>M–S 本身相对 M–Cl 更占优。</p></div>
+        <div class="region"><b>II</b><p>加入 LiCl / NaCl 形成驱动力后，两体系描述符均可转正。</p></div>
+        <div class="region"><b>III</b><p>位于 Li / Na 两条边界之间，更接近 Na 有利、Li 临界。</p></div>
+        <div class="region"><b>IV</b><p>按键能交换描述符看，Li / Na 均偏不利。</p></div>
+      </section>
+      <section class="card explainer">
+        <div class="section-kicker"><span>03</span><div class="section-title">判读方式</div></div>
+        <p>圆点代表实验成对数据；菱形表示至少一个键能由 DFT 数据补齐。红色外圈标记已有 SCl₃⁺ 金属氯络盐报道的元素。</p>
+        <a class="text-link" href="../metal-formation-energy/">用 Materials Project 形成能交叉验证 →</a>
+      </section>
+    </aside>
+  </section>
+
+  <footer class="research-footer"><span>TIN · MATERIALS LEARNING STUDIO</span><span>Bond energy is a screening descriptor, not ΔG.</span></footer>
+</main>
+<script src="../js/research-shell.js"></script>
 <script src="../metal-bde/data.js"></script>
 <script src="app.js"></script>
 </body>
