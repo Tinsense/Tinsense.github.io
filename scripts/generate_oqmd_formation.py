@@ -2,6 +2,7 @@
 import json
 import math
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 
 import requests
@@ -25,15 +26,17 @@ session.headers.update({
 def query_stable_binary(metal, anion):
     params = {
         "fields": "name,entry_id,icsd_id,delta_e,stability",
-        "limit": 200,
+        "limit": 80,
         "noduplicate": "True",
+        "sort_by": "delta_e",
+        "desc": "False",
         "format": "json",
-        "filter": f"stability=0 AND ntypes=2 AND element_set={metal},{anion}",
+        "filter": f"element_set=({metal},{anion}) AND ntypes=2 AND stability=0",
     }
     last_exc = None
-    for attempt in range(4):
+    for attempt in range(2):
         try:
-            r = session.get(API, params=params, timeout=45)
+            r = session.get(API, params=params, timeout=20)
             r.raise_for_status()
             payload = r.json()
             rows = payload.get("data", [])
@@ -57,36 +60,48 @@ def query_stable_binary(metal, anion):
             return clean
         except Exception as exc:
             last_exc = exc
-            time.sleep(1.2 * (attempt + 1))
+            time.sleep(0.8 * (attempt + 1))
     raise RuntimeError(f"{metal}-{anion}: {last_exc}")
 
 def main():
     records = []
     errors = []
-    for metal in METALS:
-        try:
-            sulfides = query_stable_binary(metal, "S")
-            chlorides = query_stable_binary(metal, "Cl")
-            if sulfides and chlorides:
-                s = sulfides[0]
-                cl = chlorides[0]
-                records.append({
-                    "m": metal,
-                    "sulfide_formula": s["formula"],
-                    "sulfide_e": round(s["e_form"], 6),
-                    "sulfide_entry_id": s["entry_id"],
-                    "sulfide_icsd_id": s["icsd_id"],
-                    "sulfide_stable_count": len(sulfides),
-                    "chloride_formula": cl["formula"],
-                    "chloride_e": round(cl["e_form"], 6),
-                    "chloride_entry_id": cl["entry_id"],
-                    "chloride_icsd_id": cl["icsd_id"],
-                    "chloride_stable_count": len(chlorides),
-                    "delta_s_minus_cl": round(s["e_form"] - cl["e_form"], 6),
-                })
-        except Exception as exc:
-            errors.append(str(exc))
-        time.sleep(0.08)
+
+    def fetch_pair(metal):
+        sulfides = query_stable_binary(metal, "S")
+        chlorides = query_stable_binary(metal, "Cl")
+        if not sulfides or not chlorides:
+            return None
+        s = sulfides[0]
+        cl = chlorides[0]
+        return {
+            "m": metal,
+            "sulfide_formula": s["formula"],
+            "sulfide_e": round(s["e_form"], 6),
+            "sulfide_entry_id": s["entry_id"],
+            "sulfide_icsd_id": s["icsd_id"],
+            "sulfide_stable_count": len(sulfides),
+            "chloride_formula": cl["formula"],
+            "chloride_e": round(cl["e_form"], 6),
+            "chloride_entry_id": cl["entry_id"],
+            "chloride_icsd_id": cl["icsd_id"],
+            "chloride_stable_count": len(chlorides),
+            "delta_s_minus_cl": round(s["e_form"] - cl["e_form"], 6),
+        }
+
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        futures = {pool.submit(fetch_pair, metal): metal for metal in METALS}
+        for fut in as_completed(futures):
+            metal = futures[fut]
+            try:
+                row = fut.result()
+                if row:
+                    records.append(row)
+            except Exception as exc:
+                errors.append(f"{metal}: {exc}")
+
+    order = {m: i for i, m in enumerate(METALS)}
+    records.sort(key=lambda x: order[x["m"]])
 
     if len(records) < 10:
         raise RuntimeError(f"Only {len(records)} paired records obtained; refusing to overwrite dataset. Errors: {errors[:8]}")
