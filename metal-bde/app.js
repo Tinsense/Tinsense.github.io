@@ -185,4 +185,3 @@ function renderAll(){ updateStats(); detail(); renderChart(); renderHeatmap(); r
 q('#reset').addEventListener('click',()=>{ search.value=''; zone.value='all'; sortHm.value='liDesc'; showHm.value='paired'; selected='Fe'; renderAll(); });
 renderAll();
 window.addEventListener('research-theme-change',renderAll);
-window.addEventListener('research-theme-change',renderAll);
