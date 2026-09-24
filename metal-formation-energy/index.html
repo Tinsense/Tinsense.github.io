@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M–S / M–Cl 稳定相形成能二维图</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">PUBLIC DATABASE · OQMD</div>
+      <h1>M–S / M–Cl 稳定相形成能二维图</h1>
+      <p>比较不同金属 M 的稳定二元硫化物与氯化物。横轴为 M–Cl 代表稳定相形成能，纵轴为 M–S 代表稳定相形成能，单位 eV/atom。</p>
+    </div>
+    <a class="back" href="../metal-bde-square/">查看旧版 BDE 图 →</a>
+  </header>
+  <section class="stats">
+    <div><span id="pointCount">—</span><small>paired metals</small></div>
+    <div><span>0</span><small>eV/atom hull cutoff</small></div>
+    <div><span id="updatedAt">—</span><small>data generated</small></div>
+  </section>
+  <section class="card">
+    <div class="legend">
+      <span><i class="dot alkali"></i>碱/碱土</span>
+      <span><i class="dot transition"></i>过渡金属</span>
+      <span><i class="dot post"></i>后过渡/类金属</span>
+      <span><i class="dot lanth"></i>镧系/锕系</span>
+      <span class="line-key">— y = x</span>
+    </div>
+    <div class="chart-wrap">
+      <svg id="plot" viewBox="0 0 920 760" role="img" aria-label="Metal sulfide versus chloride formation energy scatter plot"></svg>
+      <div id="tip" class="tip"></div>
+    </div>
+  </section>
+  <section class="note-grid">
+    <article>
+      <h2>怎么读</h2>
+      <p><b>点在 y=x 下方</b>：所选稳定硫化物的形成能更负；<b>点在 y=x 上方</b>：所选稳定氯化物的形成能更负。形成能越负，表示相对于元素单质的热力学生成越有利。</p>
+    </article>
+    <article>
+      <h2>筛选规则</h2>
+      <p>每个 M 只比较 <b>二元、凸包稳定（stability = 0）</b> 的 M–S 和 M–Cl 条目。同一体系存在多个稳定化学计量时，取形成能最负的稳定相作为代表；悬浮点可查看具体化学式和 OQMD Entry ID。</p>
+    </article>
+    <article>
+      <h2>数据源</h2>
+      <p>OQMD（Open Quantum Materials Database），DFT formation energy。数据通过公开 REST API 自动生成；页面不把该形成能直接等同于单键 M–S / M–Cl 键能。</p>
+    </article>
+  </section>
+  <footer>
+    <span id="sourceText">Source: OQMD</span>
+    <a href="https://oqmd.org/" target="_blank" rel="noreferrer">oqmd.org ↗</a>
+  </footer>
+</main>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
