@@ -97,8 +97,8 @@ function render(){
     const v=lo+(hi-lo)*i/ticks,x=X(v),y=Y(v);
     svg.appendChild(E('line',{x1:x,y1:mt,x2:x,y2:mt+ih,stroke:grid,'stroke-width':1}));
     svg.appendChild(E('line',{x1:ml,y1:y,x2:ml+iw,y2:y,stroke:grid,'stroke-width':1}));
-    let tx=E('text',{x:x,y:H-45,'text-anchor':'middle','font-size':11,fill:'#64748b'});tx.textContent=v.toFixed(1);svg.appendChild(tx);
-    let ty=E('text',{x:ml-13,y:y+4,'text-anchor':'end','font-size':11,fill:'#64748b'});ty.textContent=v.toFixed(1);svg.appendChild(ty);
+    let tx=E('text',{x:x,y:H-45,'text-anchor':'middle','font-size':11,fill:label});tx.textContent=v.toFixed(1);svg.appendChild(tx);
+    let ty=E('text',{x:ml-13,y:y+4,'text-anchor':'end','font-size':11,fill:label});ty.textContent=v.toFixed(1);svg.appendChild(ty);
   }
 
   svg.appendChild(E('line',{x1:X(lo),y1:Y(lo),x2:X(hi),y2:Y(hi),stroke:label,'stroke-width':1.5,'stroke-dasharray':'7 6'}));
