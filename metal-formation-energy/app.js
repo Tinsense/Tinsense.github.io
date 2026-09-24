@@ -28,7 +28,7 @@ function fmt(v){return Number(v).toFixed(3)}
 function oxi(v){if(v==null||!Number.isFinite(Number(v)))return '—';const n=Number(v);return (n>0?'+':'')+(Math.abs(n-Math.round(n))<1e-6?Math.round(n):n.toFixed(2))}
 function formulaHTML(s){return String(s||'—').replace(/(\d+)/g,'<sub>$1</sub>')}
 function mpUrl(id){return id?'https://materialsproject.org/materials/'+id:'https://materialsproject.org/'}
-function pointColor(m){return LINA.has(m)?'#0284c7':REPORTED_SCL3[m]?'#e11d48':'#64748b'}
+function pointColor(m){return LINA.has(m)?'#38bdf8':REPORTED_SCL3[m]?'#fb7185':(getComputedStyle(document.documentElement).getPropertyValue('--plot-label').trim()||'#64748b')}
 function pointRadius(m){return (LINA.has(m)||REPORTED_SCL3[m])?7.2:5.2}
 function oxiCandidates(p){const a=p&&p.metal_oxi_candidates;return Array.isArray(a)&&a.length?a.map(oxi).join(' / '):'—'}
 
@@ -76,8 +76,9 @@ function render(){
   document.getElementById('updatedAt').textContent=dt&&!isNaN(dt)?dt.toISOString().slice(0,10):'pending';
   document.getElementById('sourceText').textContent='Source: '+(meta.source||'Materials Project')+' · snapshot '+(meta.snapshot_date||'—')+' · '+(meta.energy_unit||'eV/atom');
   svg.innerHTML='';
+  const cs=getComputedStyle(document.documentElement),grid=cs.getPropertyValue('--plot-grid').trim(),axis=cs.getPropertyValue('--plot-axis').trim(),label=cs.getPropertyValue('--plot-label').trim(),panel=cs.getPropertyValue('--bg-elevated').trim();
   if(!data.length){
-    const t=E('text',{x:460,y:360,'text-anchor':'middle','font-size':18,fill:'#64748b'});
+    const t=E('text',{x:460,y:360,'text-anchor':'middle','font-size':18,fill:label});
     t.textContent='数据正在生成；请稍后刷新页面';svg.appendChild(t);return;
   }
 
@@ -94,24 +95,24 @@ function render(){
   const ticks=7;
   for(let i=0;i<=ticks;i++){
     const v=lo+(hi-lo)*i/ticks,x=X(v),y=Y(v);
-    svg.appendChild(E('line',{x1:x,y1:mt,x2:x,y2:mt+ih,stroke:'#e5e7eb','stroke-width':1}));
-    svg.appendChild(E('line',{x1:ml,y1:y,x2:ml+iw,y2:y,stroke:'#e5e7eb','stroke-width':1}));
+    svg.appendChild(E('line',{x1:x,y1:mt,x2:x,y2:mt+ih,stroke:grid,'stroke-width':1}));
+    svg.appendChild(E('line',{x1:ml,y1:y,x2:ml+iw,y2:y,stroke:grid,'stroke-width':1}));
     let tx=E('text',{x:x,y:H-45,'text-anchor':'middle','font-size':11,fill:'#64748b'});tx.textContent=v.toFixed(1);svg.appendChild(tx);
     let ty=E('text',{x:ml-13,y:y+4,'text-anchor':'end','font-size':11,fill:'#64748b'});ty.textContent=v.toFixed(1);svg.appendChild(ty);
   }
 
-  svg.appendChild(E('line',{x1:X(lo),y1:Y(lo),x2:X(hi),y2:Y(hi),stroke:'#475569','stroke-width':1.5,'stroke-dasharray':'7 6'}));
-  svg.appendChild(E('line',{x1:ml,y1:mt+ih,x2:ml+iw,y2:mt+ih,stroke:'#0f172a','stroke-width':1.4}));
-  svg.appendChild(E('line',{x1:ml,y1:mt,x2:ml,y2:mt+ih,stroke:'#0f172a','stroke-width':1.4}));
+  svg.appendChild(E('line',{x1:X(lo),y1:Y(lo),x2:X(hi),y2:Y(hi),stroke:label,'stroke-width':1.5,'stroke-dasharray':'7 6'}));
+  svg.appendChild(E('line',{x1:ml,y1:mt+ih,x2:ml+iw,y2:mt+ih,stroke:axis,'stroke-width':1.4}));
+  svg.appendChild(E('line',{x1:ml,y1:mt,x2:ml,y2:mt+ih,stroke:axis,'stroke-width':1.4}));
 
-  let xt=E('text',{x:ml+iw/2,y:H-10,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#0f172a'});
+  let xt=E('text',{x:ml+iw/2,y:H-10,'text-anchor':'middle','font-size':14,'font-weight':700,fill:axis});
   xt.textContent='同价态稳定氯化物形成能 E_f(M–Cl) / eV atom⁻¹';svg.appendChild(xt);
-  let yt=E('text',{x:22,y:mt+ih/2,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#0f172a',transform:'rotate(-90 22 '+(mt+ih/2)+')'});
+  let yt=E('text',{x:22,y:mt+ih/2,'text-anchor':'middle','font-size':14,'font-weight':700,fill:axis,transform:'rotate(-90 22 '+(mt+ih/2)+')'});
   yt.textContent='同价态稳定硫化物形成能 E_f(M–S) / eV atom⁻¹';svg.appendChild(yt);
 
   data.forEach((d,i)=>{
     const cx=X(d.chloride_e),cy=Y(d.sulfide_e),color=pointColor(d.m);
-    const p=E('circle',{cx:cx,cy:cy,r:pointRadius(d.m),fill:color,stroke:'#fff','stroke-width':1.7});
+    const p=E('circle',{cx:cx,cy:cy,r:pointRadius(d.m),fill:color,stroke:panel,'stroke-width':1.7});
     p.style.cursor='pointer';
     const show=(ev)=>{
       const delta=d.delta_s_minus_cl;
@@ -135,3 +136,5 @@ function render(){
   else if(data[0]) selectMetal(data[0].m);
 }
 render();
+
+window.addEventListener('research-theme-change',render);
