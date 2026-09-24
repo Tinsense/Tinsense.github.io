@@ -1,150 +1,51 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Li₂S / Na₂S 反应可能性热力图</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000">
+<title>键能数据与热力图 · 晶格</title>
+<link rel="stylesheet" href="../css/research-shell.css"><link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="wrap">
-  <h1>M–S / M–Cl 二维图 + Li₂S / Na₂S 反应可能性热力图</h1>
-  <div class="lead">在之前二维分区图的基础上，新增了一个热力图，用键能描述符来可视化各个金属氯化物与 <b>Li₂S</b> / <b>Na₂S</b> 发生 <code>A₂S + MClₓ → ACl + MS</code> 类交换反应的“相对可能性”。</div>
-  <div class="note">
-    热力图评分定义：<br>
-    <b>S<sub>Li</sub>(M) = [D(M–S)-D(M–Cl)] + 156.5</b><br>
-    <b>S<sub>Na</sub>(M) = [D(M–S)-D(M–Cl)] + 164.9</b><br>
-    其中 156.5 来自实验 Li–Cl 与 Li–S 的差值，164.9 来自补齐数据库下 Na–Cl 与 Na–S 的差值。<br>
-    <b>分数越大，越倾向发生 LiCl/NaCl + MS 形成。</b> 这是第一层筛选 descriptor，不等同于严格反应 ΔG。
-  </div>
+<header class="site-header">
+  <a class="brand" href="../"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><strong>晶格</strong><small>MATERIALS LEARNING STUDIO</small></span></a>
+  <div class="header-center"><span>DATA · 02</span><p>Bond-energy screening<br>and heatmap</p></div>
+  <div class="header-actions"><a class="header-link" href="../metal-bde-square/">二维相图</a><a class="header-link" href="../metal-formation-energy/">形成能图</a><button class="top-action" id="theme-toggle" type="button" aria-label="切换明暗主题"><svg class="icon" id="theme-icon" viewBox="0 0 24 24"></svg></button></div>
+</header>
 
-  <div class="stats">
-    <div class="card stat"><div class="k">总金属数</div><div class="v">92</div></div>
-    <div class="card stat"><div class="k">成对可比较</div><div id="nBoth" class="v"></div></div>
-    <div class="card stat"><div class="k">Region I</div><div id="nR1" class="v"></div></div>
-    <div class="card stat"><div class="k">Region II</div><div id="nR2" class="v"></div></div>
-    <div class="card stat"><div class="k">Region III</div><div id="nR3" class="v"></div></div>
-    <div class="card stat"><div class="k">Region IV</div><div id="nR4" class="v"></div></div>
-  </div>
+<main class="research-page">
+<section class="page-hero">
+  <div><div class="eyebrow">BOND-ENERGY SCREENING · Li₂S / Na₂S</div><h1>键能数据与反应热力图</h1><p>将 M–S / M–Cl 键能差转化为 S<sub>Li</sub> 与 S<sub>Na</sub> 描述符，用于第一层反应可行性筛选。这里保留完整二维散点、元素联动、热力图和原始数据表。</p></div>
+  <div class="hero-actions"><a class="liquid-button primary" href="../metal-bde-square/">简洁二维图</a><a class="liquid-button" href="../">返回主页</a></div>
+</section>
 
-  <div class="layout">
-    <section class="card">
-      <div class="section-title">二维图分区</div>
-      <div class="controls">
-        <label style="flex:1;min-width:180px">搜索金属<input id="search" placeholder="Fe / Ta / Na…"></label>
-        <label>筛选区域
-          <select id="zone">
-            <option value="all">全部区域</option>
-            <option value="both_strong">Region I：对 Li / Na 都强有利</option>
-            <option value="li_na">Region II：对 Li / Na 都可能有利</option>
-            <option value="na_only">Region III：Na 可能有利</option>
-            <option value="unfav">Region IV：Li / Na 都偏不利</option>
-            <option value="nodata">无完整成对数据</option>
-          </select>
-        </label>
-        <button id="reset" type="button">重置</button>
-      </div>
-      <div id="chartWrap" class="chart-wrap">
-        <svg id="chart" viewBox="0 0 760 760"></svg>
-        <div id="tip" class="tip"></div>
-      </div>
-      <div class="legend">
-        <span><i class="sw" style="background:var(--r1)"></i>Region I：y ≥ x</span>
-        <span><i class="sw" style="background:var(--r2)"></i>Region II：x−156.5 ≤ y &lt; x</span>
-        <span><i class="sw" style="background:var(--r3)"></i>Region III：x−164.9 ≤ y &lt; x−156.5</span>
-        <span><i class="sw" style="background:var(--r4)"></i>Region IV：y &lt; x−164.9</span>
-      </div>
-      <div class="point-legend">
-        <span>● 两个值都来自实验表</span>
-        <span>◇ 至少一个值来自权威 DFT 数据库补齐</span>
-      </div>
-    </section>
+<section class="method-note">
+  <span>DESCRIPTOR</span><p><b>S<sub>Li</sub>(M)=[D(M–S)-D(M–Cl)]+156.5</b>；<b>S<sub>Na</sub>(M)=[D(M–S)-D(M–Cl)]+164.9</b>。分数越大，越倾向形成 LiCl/NaCl + MS；它是筛选描述符，不等同于严格反应 ΔG。</p>
+</section>
 
-    <aside class="card">
-      <div class="section-title">当前元素</div>
-      <div id="dm" class="metal">Fe</div>
-      <div class="metric"><div class="k">M–Cl</div><div id="dcl" class="v"></div></div>
-      <div class="metric"><div class="k">M–S</div><div id="ds" class="v"></div></div>
-      <div class="metric"><div class="k">Δ = M–S − M–Cl</div><div id="dd" class="v"></div></div>
-      <div class="metric"><div class="k">S<sub>Li</sub></div><div id="dli" class="v"></div></div>
-      <div class="metric"><div class="k">S<sub>Na</sub></div><div id="dna" class="v"></div></div>
-      <div id="dnote" class="help"></div>
-    </aside>
-  </div>
-
-  <div class="hm-layout">
-    <section class="card">
-      <div class="section-title">Li₂S / Na₂S 反应可能性热力图</div>
-      <div class="hm-legend">
-        <span>颜色越绿 = 反应可能性越高</span>
-        <div class="grad"></div>
-        <span>0 为临界线</span>
-      </div>
-      <div class="controls">
-        <label>排序
-          <select id="sortHm">
-            <option value="liDesc">按 SLi 从高到低</option>
-            <option value="naDesc">按 SNa 从高到低</option>
-            <option value="avgDesc">按平均分从高到低</option>
-            <option value="deltaDesc">按 Δ(M–S−M–Cl) 从高到低</option>
-            <option value="zAsc">按原子序数</option>
-          </select>
-        </label>
-        <label>显示
-          <select id="showHm">
-            <option value="paired">仅有成对数据</option>
-            <option value="all">全部元素</option>
-          </select>
-        </label>
-      </div>
-      <div class="hm-wrap">
-        <table class="hm-table">
-          <thead>
-            <tr>
-              <th>Metal</th>
-              <th>Li₂S 可能性</th>
-              <th>Na₂S 可能性</th>
-              <th>Δ(M–S−M–Cl)</th>
-              <th>判读</th>
-            </tr>
-          </thead>
-          <tbody id="hmBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <aside class="card">
-      <div class="section-title">热力图读法</div>
-      <div class="small">
-        <b>S &gt; 100</b>：很可能发生<br>
-        <b>0 ~ 100</b>：有利 / 可能发生<br>
-        <b>-50 ~ 0</b>：边界 / 可能受结构与相稳定性影响<br>
-        <b>&lt; -50</b>：从键能看偏不利<br><br>
-        因为 <b>S<sub>Na</sub> = S<sub>Li</sub> + 8.4</b>，所以 Na 热力图会整体略“偏绿”一点。<br><br>
-        点击热力图单元格或元素名，会同步联动到上方二维图与下方表格。
-      </div>
-    </aside>
-  </div>
-
-  <section class="card table-card">
-    <div class="section-title">元素与分区一览</div>
-    <div class="small">点击元素可同步高亮散点与热力图。没有成对数据的元素仍保留在表里。</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>Z</th><th>元素</th><th>M–Cl</th><th>M–S</th><th>Δ</th><th>SLi</th><th>SNa</th><th>Cl来源</th><th>S来源</th><th>分区</th></tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-    <div class="footer">
-      该页面是“键能筛选层”的可视化工具。若你后面要用于论文或方案筛选，建议进一步叠加：
-      ① 价态变化；② 生成物相稳定性；③ 竞争相；④ 反应 ΔG。
-    </div>
-  </section>
+<div class="stats">
+  <div class="stat"><div class="k">总金属数</div><div class="v">92</div></div><div class="stat"><div class="k">成对可比较</div><div id="nBoth" class="v"></div></div>
+  <div class="stat"><div class="k">Region I</div><div id="nR1" class="v"></div></div><div class="stat"><div class="k">Region II</div><div id="nR2" class="v"></div></div>
+  <div class="stat"><div class="k">Region III</div><div id="nR3" class="v"></div></div><div class="stat"><div class="k">Region IV</div><div id="nR4" class="v"></div></div>
 </div>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
-</body>
-</html>
+<div class="layout">
+<section class="card">
+  <div class="section-kicker"><span>01</span><div class="section-title">二维图分区</div></div>
+  <div class="controls"><label class="grow">搜索金属<input id="search" placeholder="Fe / Ta / Na…"></label><label>筛选区域<select id="zone"><option value="all">全部区域</option><option value="both_strong">Region I：对 Li / Na 都强有利</option><option value="li_na">Region II：对 Li / Na 都可能有利</option><option value="na_only">Region III：Na 可能有利</option><option value="unfav">Region IV：Li / Na 都偏不利</option><option value="nodata">无完整成对数据</option></select></label><button id="reset" type="button">重置</button></div>
+  <div id="chartWrap" class="chart-wrap"><svg id="chart" viewBox="0 0 760 760"></svg><div id="tip" class="tip"></div></div>
+  <div class="legend"><span><i class="sw r1"></i>Region I：y ≥ x</span><span><i class="sw r2"></i>Region II</span><span><i class="sw r3"></i>Region III</span><span><i class="sw r4"></i>Region IV</span></div>
+  <div class="point-legend"><span>● 实验成对数据</span><span>◇ 至少一个值来自 DFT 补齐</span></div>
+</section>
+<aside class="card detail-card"><div class="section-kicker"><span>02</span><div class="section-title">当前元素</div></div><div id="dm" class="metal">Fe</div><div class="metric"><div class="k">M–Cl</div><div id="dcl" class="v"></div></div><div class="metric"><div class="k">M–S</div><div id="ds" class="v"></div></div><div class="metric"><div class="k">Δ = M–S − M–Cl</div><div id="dd" class="v"></div></div><div class="metric"><div class="k">S<sub>Li</sub></div><div id="dli" class="v"></div></div><div class="metric"><div class="k">S<sub>Na</sub></div><div id="dna" class="v"></div></div><div id="dnote" class="help"></div></aside>
+</div>
+
+<div class="hm-layout">
+<section class="card"><div class="section-kicker"><span>03</span><div class="section-title">Li₂S / Na₂S 反应可能性热力图</div></div><div class="hm-legend"><span>红 → 临界 → 绿</span><div class="grad"></div><span>0 为临界线</span></div><div class="controls"><label>排序<select id="sortHm"><option value="liDesc">按 SLi 从高到低</option><option value="naDesc">按 SNa 从高到低</option><option value="avgDesc">按平均分从高到低</option><option value="deltaDesc">按 Δ 从高到低</option><option value="zAsc">按原子序数</option></select></label><label>显示<select id="showHm"><option value="paired">仅有成对数据</option><option value="all">全部元素</option></select></label></div><div class="hm-wrap"><table class="hm-table"><thead><tr><th>Metal</th><th>Li₂S 可能性</th><th>Na₂S 可能性</th><th>Δ(M–S−M–Cl)</th><th>判读</th></tr></thead><tbody id="hmBody"></tbody></table></div></section>
+<aside class="card explainer"><div class="section-kicker"><span>04</span><div class="section-title">热力图读法</div></div><div class="small"><b>S &gt; 100</b>：很可能发生<br><b>0 ~ 100</b>：有利 / 可能发生<br><b>-50 ~ 0</b>：边界<br><b>&lt; -50</b>：键能上偏不利<br><br>因为 <b>S<sub>Na</sub>=S<sub>Li</sub>+8.4</b>，Na 热力图整体略偏正。点击元素会联动全页。</div></aside>
+</div>
+
+<section class="card table-card"><div class="section-kicker"><span>05</span><div class="section-title">元素与分区一览</div></div><div class="small">点击元素可同步高亮散点与热力图。没有成对数据的元素仍保留。</div><div class="table-wrap"><table><thead><tr><th>Z</th><th>元素</th><th>M–Cl</th><th>M–S</th><th>Δ</th><th>SLi</th><th>SNa</th><th>Cl来源</th><th>S来源</th><th>分区</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="footer">用于论文或方案筛选时，建议进一步叠加价态变化、生成物相稳定性、竞争相与反应 ΔG。</div></section>
+<footer class="research-footer"><span>TIN · MATERIALS LEARNING STUDIO</span><span>Bond-energy screening layer</span></footer>
+</main>
+<script src="../js/research-shell.js"></script><script src="data.js"></script><script src="app.js"></script>
+</body></html>
