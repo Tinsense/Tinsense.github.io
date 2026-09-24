@@ -5,7 +5,7 @@ import math
 from datetime import datetime, timezone
 
 import requests
-from pymatgen.core import Composition
+from pymatgen.core import Composition, Element
 
 DATA_URL = "https://ndownloader.figshare.com/files/13309253"
 OUT = "metal-formation-energy/data.js"
@@ -30,19 +30,22 @@ def metal_for_binary(formula, anion):
 
 def oxidation_candidates(formula, metal):
     try:
-        guesses = Composition(formula).oxi_state_guesses()
+        comp = Composition(formula)
+        n_m = float(comp[Element(metal)])
+        anion = "S" if "S" in {str(el) for el in comp.elements} else "Cl"
+        n_x = float(comp[Element(anion)])
+        metal_states = [float(x) for x in Element(metal).oxidation_states if float(x) > 0]
+        anion_states = [float(x) for x in Element(anion).oxidation_states if float(x) < 0]
     except Exception:
         return []
+
     vals = []
-    for guess in guesses:
-        if metal not in guess:
-            continue
-        try:
-            val = round(float(guess[metal]), 3)
-        except (TypeError, ValueError):
-            continue
-        if not any(abs(val - x) <= 0.02 for x in vals):
-            vals.append(val)
+    for x_state in anion_states:
+        m_state = -(n_x * x_state) / n_m
+        if any(abs(m_state - allowed) <= 0.06 for allowed in metal_states):
+            v = round(m_state, 3)
+            if not any(abs(v - old) <= 0.02 for old in vals):
+                vals.append(v)
     return sorted(vals)
 
 def dedupe_phases(items):
@@ -158,7 +161,7 @@ def main():
         "snapshot_date": SNAPSHOT,
         "dataset_url": DATA_URL,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "selection": "Stable binary M-S and M-Cl entries with e_hull <= 1e-6 eV/atom. All pymatgen composition-based oxidation-state candidates are retained. A 2D point is drawn when sulfide and chloride share a metal oxidation-state candidate within ±0.06.",
+        "selection": "Stable binary M-S and M-Cl entries with e_hull <= 1e-6 eV/atom. All stoichiometrically charge-balanced metal oxidation-state candidates allowed by pymatgen Element.oxidation_states are retained; negative S/Cl oxidation states are considered. A 2D point is drawn when sulfide and chloride share a metal oxidation-state candidate within ±0.06.",
         "energy_unit": "eV/atom",
         "paired_points": len(pairs),
         "paired_metals": len(paired_metals),
