@@ -1,6 +1,7 @@
 const data = window.BDE_DATA;
 const LI_SHIFT = 156.5, NA_SHIFT = 164.9;
 const q=s=>document.querySelector(s), NS='http://www.w3.org/2000/svg';
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const search=q('#search'), zone=q('#zone'), sortHm=q('#sortHm'), showHm=q('#showHm');
 let selected='Fe';
 
@@ -183,4 +184,5 @@ function renderAll(){ updateStats(); detail(); renderChart(); renderHeatmap(); r
 [search,zone,sortHm,showHm].forEach(x=>x.addEventListener(x===search?'input':'change', renderAll));
 q('#reset').addEventListener('click',()=>{ search.value=''; zone.value='all'; sortHm.value='liDesc'; showHm.value='paired'; selected='Fe'; renderAll(); });
 renderAll();
+window.addEventListener('research-theme-change',renderAll);
 window.addEventListener('research-theme-change',renderAll);
