@@ -83,7 +83,7 @@ function renderChart(){
   svg.appendChild(E('line',{x1:X(LI_SHIFT),y1:Y(0),x2:X(max),y2:Y(max-LI_SHIFT),stroke:'#2563eb','stroke-dasharray':'5 5','stroke-width':1.7}));
   svg.appendChild(E('line',{x1:X(NA_SHIFT),y1:Y(0),x2:X(max),y2:Y(max-NA_SHIFT),stroke:'#7c3aed','stroke-dasharray':'3 5','stroke-width':1.7}));
   svg.appendChild(E('line',{x1:ml,y1:mt+ih,x2:ml+iw,y2:mt+ih,stroke:axis}));
-  svg.appendChild(E('line',{x1:ml,y1:mt,x2:ml,y2:mt+ih,stroke:'#111'}));
+  svg.appendChild(E('line',{x1:ml,y1:mt,x2:ml,y2:mt+ih,stroke:axis}));
 
   let xt=E('text',{x:ml+iw/2,y:H-8,'text-anchor':'middle','font-size':13,fill:axis});
   xt.textContent='M–Cl  (kJ mol⁻¹)'; svg.appendChild(xt);
