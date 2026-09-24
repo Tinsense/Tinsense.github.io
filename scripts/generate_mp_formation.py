@@ -5,7 +5,6 @@ import math
 from datetime import datetime, timezone
 
 import requests
-from pymatgen.core import Composition, Element
 
 DATA_URL = "https://ndownloader.figshare.com/files/13309253"
 OUT = "metal-formation-energy/data.js"
@@ -20,33 +19,38 @@ METALS = [
 ]
 METAL_SET = set(METALS)
 
+def parse_formula(formula):
+    counts = {}
+    for el, num in re.findall(r"([A-Z][a-z]?)([0-9]*\.?[0-9]*)", (formula or "").replace(" ", "")):
+        counts[el] = counts.get(el, 0.0) + (float(num) if num else 1.0)
+    return counts
+
 def metal_for_binary(formula, anion):
-    comp = Composition(formula)
-    elems = {str(el) for el in comp.elements}
+    counts = parse_formula(formula)
+    elems = set(counts)
     if len(elems) != 2 or anion not in elems:
         return None
     candidates = (elems - {anion}) & METAL_SET
     return next(iter(candidates)) if len(candidates) == 1 else None
 
-def oxidation_candidates(formula, metal):
-    try:
-        comp = Composition(formula)
-        n_m = float(comp[Element(metal)])
-        anion = "S" if "S" in {str(el) for el in comp.elements} else "Cl"
-        n_x = float(comp[Element(anion)])
-        metal_states = [float(x) for x in Element(metal).oxidation_states if float(x) > 0]
-        anion_states = [float(x) for x in Element(anion).oxidation_states if float(x) < 0]
-    except Exception:
-        return []
+def reduced_formula(formula):
+    # MP snapshot formulas used here are simple binary formulas; preserve them as displayed.
+    return (formula or "").replace(" ", "")
 
-    vals = []
-    for x_state in anion_states:
-        m_state = -(n_x * x_state) / n_m
-        if any(abs(m_state - allowed) <= 0.06 for allowed in metal_states):
-            v = round(m_state, 3)
-            if not any(abs(v - old) <= 0.02 for old in vals):
-                vals.append(v)
-    return sorted(vals)
+def oxidation_candidates(formula, metal):
+    counts = parse_formula(formula)
+    if metal not in counts:
+        return []
+    n_m = counts[metal]
+    if "Cl" in counts:
+        # Chloride: Cl is treated as -1.
+        return [round(counts["Cl"] / n_m, 3)]
+    if "S" in counts:
+        # Sulfide: retain both S2- and disulfide/polysulfide-like S- candidates.
+        ratio = counts["S"] / n_m
+        vals = [round(ratio, 3), round(2 * ratio, 3)]
+        return sorted(set(v for v in vals if v > 0))
+    return []
 
 def dedupe_phases(items):
     best = {}
@@ -79,8 +83,7 @@ def main():
     for row in rows:
         formula_raw = row[idx["formula"]]
         try:
-            comp = Composition(formula_raw)
-            formula = comp.reduced_formula
+            formula = reduced_formula(formula_raw)
             e_form = float(row[idx["e_form"]])
             e_hull = float(row[idx["e_hull"]])
         except Exception:
@@ -161,7 +164,7 @@ def main():
         "snapshot_date": SNAPSHOT,
         "dataset_url": DATA_URL,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "selection": "Stable binary M-S and M-Cl entries with e_hull <= 1e-6 eV/atom. All stoichiometrically charge-balanced metal oxidation-state candidates allowed by pymatgen Element.oxidation_states are retained; negative S/Cl oxidation states are considered. A 2D point is drawn when sulfide and chloride share a metal oxidation-state candidate within ±0.06.",
+        "selection": "Stable binary M-S and M-Cl entries with e_hull <= 1e-6 eV/atom. Chlorides use Cl=-1. Sulfides retain two stoichiometric metal-valence candidates corresponding to S=-2 and S=-1 (disulfide/polysulfide-like). A 2D point is drawn when sulfide and chloride share a candidate within ±0.06. A 2D point is drawn when sulfide and chloride share a metal oxidation-state candidate within ±0.06.",
         "energy_unit": "eV/atom",
         "paired_points": len(pairs),
         "paired_metals": len(paired_metals),
