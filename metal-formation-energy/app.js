@@ -30,6 +30,7 @@ function formulaHTML(s){return String(s||'—').replace(/(\d+)/g,'<sub>$1</sub>'
 function mpUrl(id){return id?'https://materialsproject.org/materials/'+id:'https://materialsproject.org/'}
 function pointColor(m){return LINA.has(m)?'#0284c7':REPORTED_SCL3[m]?'#e11d48':'#64748b'}
 function pointRadius(m){return (LINA.has(m)||REPORTED_SCL3[m])?7.2:5.2}
+function oxiCandidates(p){const a=p&&p.metal_oxi_candidates;return Array.isArray(a)&&a.length?a.map(oxi).join(' / '):'—'}
 
 function renderPhaseList(items,targetId){
   const el=document.getElementById(targetId);
@@ -46,7 +47,7 @@ function selectMetal(m){
   let extra='';
   if(LINA.has(m)) extra=' · Li/Na 高亮';
   if(REPORTED_SCL3[m]) extra=' · 已报道 SCl3+ 络盐：'+REPORTED_SCL3[m].join('，');
-  document.getElementById('phaseSubtitle').textContent='E_f 单位 eV/atom；M价态为 pymatgen 基于化学式的 oxidation-state guess'+extra;
+  document.getElementById('phaseSubtitle').textContent='E_f 单位 eV/atom；M价态显示 pymatgen 基于化学式给出的全部 oxidation-state candidates；含 S–S 的相可能存在多解'+extra;
   const p=phases[m]||{};
   renderPhaseList(p.sulfides||[],'sulfideList');
   renderPhaseList(p.chlorides||[],'chlorideList');
