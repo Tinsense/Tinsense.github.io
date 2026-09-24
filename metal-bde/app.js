@@ -63,6 +63,7 @@ function E(name, attrs={}){
 function renderChart(){
   const svg=q('#chart'), tip=q('#tip');
   svg.innerHTML='';
+  const cs=getComputedStyle(document.documentElement),grid=cs.getPropertyValue('--plot-grid').trim(),axis=cs.getPropertyValue('--plot-axis').trim(),label=cs.getPropertyValue('--plot-label').trim(),panel=cs.getPropertyValue('--bg-elevated').trim();
   const W=760,H=760, ml=78,mr=24,mt=20,mb=70, iw=W-ml-mr, ih=H-mt-mb, max=800;
   const X=v=>ml+v/max*iw, Y=v=>mt+ih-v/max*ih;
 
@@ -73,33 +74,33 @@ function renderChart(){
 
   for(let t=0;t<=max;t+=100){
     let x=X(t), y=Y(t);
-    svg.appendChild(E('line',{x1:x,y1:mt,x2:x,y2:mt+ih,stroke:'#e6e8eb'}));
-    svg.appendChild(E('line',{x1:ml,y1:y,x2:ml+iw,y2:y,stroke:'#e6e8eb'}));
-    let tx=E('text',{x:x,y:H-40,'text-anchor':'middle','font-size':11,fill:'#69717d'}); tx.textContent=t; svg.appendChild(tx);
-    let ty=E('text',{x:ml-12,y:y+4,'text-anchor':'end','font-size':11,fill:'#69717d'}); ty.textContent=t; svg.appendChild(ty);
+    svg.appendChild(E('line',{x1:x,y1:mt,x2:x,y2:mt+ih,stroke:grid}));
+    svg.appendChild(E('line',{x1:ml,y1:y,x2:ml+iw,y2:y,stroke:grid}));
+    let tx=E('text',{x:x,y:H-40,'text-anchor':'middle','font-size':11,fill:label}); tx.textContent=t; svg.appendChild(tx);
+    let ty=E('text',{x:ml-12,y:y+4,'text-anchor':'end','font-size':11,fill:label}); ty.textContent=t; svg.appendChild(ty);
   }
   svg.appendChild(E('line',{x1:ml,y1:Y(0),x2:X(max),y2:Y(max),stroke:'#16a34a','stroke-dasharray':'6 5','stroke-width':1.7}));
   svg.appendChild(E('line',{x1:X(LI_SHIFT),y1:Y(0),x2:X(max),y2:Y(max-LI_SHIFT),stroke:'#2563eb','stroke-dasharray':'5 5','stroke-width':1.7}));
   svg.appendChild(E('line',{x1:X(NA_SHIFT),y1:Y(0),x2:X(max),y2:Y(max-NA_SHIFT),stroke:'#7c3aed','stroke-dasharray':'3 5','stroke-width':1.7}));
-  svg.appendChild(E('line',{x1:ml,y1:mt+ih,x2:ml+iw,y2:mt+ih,stroke:'#111'}));
+  svg.appendChild(E('line',{x1:ml,y1:mt+ih,x2:ml+iw,y2:mt+ih,stroke:axis}));
   svg.appendChild(E('line',{x1:ml,y1:mt,x2:ml,y2:mt+ih,stroke:'#111'}));
 
-  let xt=E('text',{x:ml+iw/2,y:H-8,'text-anchor':'middle','font-size':13});
+  let xt=E('text',{x:ml+iw/2,y:H-8,'text-anchor':'middle','font-size':13,fill:axis});
   xt.textContent='M–Cl  (kJ mol⁻¹)'; svg.appendChild(xt);
-  let yt=E('text',{x:17,y:mt+ih/2,'text-anchor':'middle','font-size':13,transform:`rotate(-90 17 ${mt+ih/2})`});
+  let yt=E('text',{x:17,y:mt+ih/2,'text-anchor':'middle','font-size':13,fill:axis,transform:`rotate(-90 17 ${mt+ih/2})`});
   yt.textContent='M–S  (kJ mol⁻¹)'; svg.appendChild(yt);
 
   [['y = x',585,610,'#15803d'],['Li 边界',545,390,'#2563eb'],['Na 边界',515,325,'#7c3aed']].forEach(([txt,x,y,c])=>{let t=E('text',{x:X(x),y:Y(y),'font-size':11,fill:c});t.textContent=txt;svg.appendChild(t);});
-  [['Region I',150,690],['Region II',520,605],['Region III',680,560],['Region IV',700,160]].forEach(([txt,x,y])=>{let t=E('text',{x:X(x),y:Y(y),'font-size':14,fill:'#475569','font-weight':700});t.textContent=txt;svg.appendChild(t);});
+  [['Region I',150,690],['Region II',520,605],['Region III',680,560],['Region IV',700,160]].forEach(([txt,x,y])=>{let t=E('text',{x:X(x),y:Y(y),'font-size':14,fill:label,'font-weight':700});t.textContent=txt;svg.appendChild(t);});
 
   data.filter(d=>filtered(d) && d.cl!=null && d.s!=null).forEach((d,i)=>{
     const cx=X(d.cl), cy=Y(d.s);
     const color = d.zone==='both_strong' ? 'var(--green)' : d.zone==='li_na' ? 'var(--blue)' : d.zone==='na_only' ? 'var(--purple)' : 'var(--orange)';
     let mark;
     if(mixed(d)){
-      mark=E('rect',{x:cx-5.1,y:cy-5.1,width:10.2,height:10.2,fill:'white',stroke:color,'stroke-width':d.m===selected?2.8:1.8,transform:`rotate(45 ${cx} ${cy})`});
+      mark=E('rect',{x:cx-5.1,y:cy-5.1,width:10.2,height:10.2,fill:panel,stroke:color,'stroke-width':d.m===selected?2.8:1.8,transform:`rotate(45 ${cx} ${cy})`});
     } else {
-      mark=E('circle',{cx,cy,r:d.m===selected?7:5.2,fill:color,stroke:d.m===selected?'#111827':'white','stroke-width':d.m===selected?2.4:1.1});
+      mark=E('circle',{cx,cy,r:d.m===selected?7:5.2,fill:color,stroke:d.m===selected?axis:panel,'stroke-width':d.m===selected?2.4:1.1});
     }
     mark.style.cursor='pointer';
     mark.addEventListener('click',()=>{selected=d.m; renderAll();});
@@ -113,12 +114,12 @@ function renderChart(){
     mark.addEventListener('pointerleave',()=>tip.style.display='none');
     svg.appendChild(mark);
     let dx=7, dy=(i%2===0?-7:12); if(d.m===selected){dx=10;dy=-10;}
-    let lab=E('text',{x:cx+dx,y:cy+dy,'font-size':9.5,fill:'#17191c','font-weight':d.m===selected?700:500});
+    let lab=E('text',{x:cx+dx,y:cy+dy,'font-size':9.5,fill:axis,'font-weight':d.m===selected?700:500});
     lab.textContent=d.m; lab.style.pointerEvents='none'; svg.appendChild(lab);
   });
 }
 function heatColor(score){
-  if(score==null) return '#f3f4f6';
+  if(score==null) return getComputedStyle(document.documentElement).getPropertyValue('--surface-strong').trim();
   const min=-100, max=250;
   let t=(score-min)/(max-min); t=Math.max(0,Math.min(1,t));
   const hue=120*t; const sat=65; const light=90-50*t;
@@ -182,3 +183,4 @@ function renderAll(){ updateStats(); detail(); renderChart(); renderHeatmap(); r
 [search,zone,sortHm,showHm].forEach(x=>x.addEventListener(x===search?'input':'change', renderAll));
 q('#reset').addEventListener('click',()=>{ search.value=''; zone.value='all'; sortHm.value='liDesc'; showHm.value='paired'; selected='Fe'; renderAll(); });
 renderAll();
+window.addEventListener('research-theme-change',renderAll);
