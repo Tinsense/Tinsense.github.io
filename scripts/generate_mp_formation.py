@@ -28,21 +28,22 @@ def metal_for_binary(formula, anion):
     candidates = (elems - {anion}) & METAL_SET
     return next(iter(candidates)) if len(candidates) == 1 else None
 
-def oxidation_guess(formula, metal):
+def oxidation_candidates(formula, metal):
     try:
         guesses = Composition(formula).oxi_state_guesses()
     except Exception:
-        return None, None
-    if not guesses:
-        return None, None
-    guess = guesses[0]
-    if metal not in guess:
-        return None, guess
-    try:
-        val = float(guess[metal])
-    except (TypeError, ValueError):
-        return None, guess
-    return round(val, 3), {k: round(float(v), 3) for k, v in guess.items()}
+        return []
+    vals = []
+    for guess in guesses:
+        if metal not in guess:
+            continue
+        try:
+            val = round(float(guess[metal]), 3)
+        except (TypeError, ValueError):
+            continue
+        if not any(abs(val - x) <= 0.02 for x in vals):
+            vals.append(val)
+    return sorted(vals)
 
 def dedupe_phases(items):
     best = {}
@@ -51,7 +52,7 @@ def dedupe_phases(items):
         if key not in best or (item["e_form"], item["e_hull"]) < (best[key]["e_form"], best[key]["e_hull"]):
             best[key] = item
     return sorted(best.values(), key=lambda x: (
-        999 if x["metal_oxi"] is None else x["metal_oxi"],
+        999 if not x["metal_oxi_candidates"] else x["metal_oxi_candidates"][0],
         x["e_form"],
         x["formula"]
     ))
@@ -91,14 +92,13 @@ def main():
             if not metal:
                 continue
             raw_counts[anion] += 1
-            metal_oxi, full_guess = oxidation_guess(formula, metal)
+            oxi_candidates = oxidation_candidates(formula, metal)
             item = {
                 "formula": formula,
                 "mpid": row[idx["mpid"]],
                 "e_form": round(e_form, 6),
                 "e_hull": round(e_hull, 8),
-                "metal_oxi": metal_oxi,
-                "oxi_guess": full_guess,
+                "metal_oxi_candidates": oxi_candidates,
             }
             grouped[anion].setdefault(metal, []).append(item)
 
@@ -120,14 +120,16 @@ def main():
         matched_vals = []
         for s in sulfides:
             for cl in chlorides:
-                if same_valence(s["metal_oxi"], cl["metal_oxi"]):
-                    v = round((s["metal_oxi"] + cl["metal_oxi"]) / 2, 2)
-                    if not any(abs(v - x) <= 0.05 for x in matched_vals):
-                        matched_vals.append(v)
+                for sv in s["metal_oxi_candidates"]:
+                    for cv in cl["metal_oxi_candidates"]:
+                        if same_valence(sv, cv):
+                            v = round((sv + cv) / 2, 2)
+                            if not any(abs(v - x) <= 0.05 for x in matched_vals):
+                                matched_vals.append(v)
 
         for valence in sorted(matched_vals):
-            s_candidates = [x for x in sulfides if x["metal_oxi"] is not None and abs(x["metal_oxi"] - valence) <= 0.06]
-            cl_candidates = [x for x in chlorides if x["metal_oxi"] is not None and abs(x["metal_oxi"] - valence) <= 0.06]
+            s_candidates = [x for x in sulfides if any(abs(v - valence) <= 0.06 for v in x["metal_oxi_candidates"])]
+            cl_candidates = [x for x in chlorides if any(abs(v - valence) <= 0.06 for v in x["metal_oxi_candidates"])]
             if not s_candidates or not cl_candidates:
                 continue
             s = min(s_candidates, key=lambda x: (x["e_form"], x["e_hull"]))
@@ -156,7 +158,7 @@ def main():
         "snapshot_date": SNAPSHOT,
         "dataset_url": DATA_URL,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "selection": "Stable binary M-S and M-Cl entries with e_hull <= 1e-6 eV/atom. Oxidation states are pymatgen composition-based guesses. A 2D point is drawn only when sulfide and chloride metal oxidation states match within ±0.06.",
+        "selection": "Stable binary M-S and M-Cl entries with e_hull <= 1e-6 eV/atom. All pymatgen composition-based oxidation-state candidates are retained. A 2D point is drawn when sulfide and chloride share a metal oxidation-state candidate within ±0.06.",
         "energy_unit": "eV/atom",
         "paired_points": len(pairs),
         "paired_metals": len(paired_metals),
