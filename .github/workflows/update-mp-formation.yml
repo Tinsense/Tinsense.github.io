@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependency
-        run: python -m pip install requests
+        run: python -m pip install requests pymatgen
       - name: Download MP snapshot and generate data
         run: python scripts/generate_mp_formation.py
       - name: Commit generated dataset
