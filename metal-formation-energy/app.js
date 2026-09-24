@@ -3,6 +3,7 @@ const data=(window.FORMATION_DATA||[]).filter(d=>Number.isFinite(d.sulfide_e)&&N
 const phases=window.FORMATION_PHASES||{};
 const meta=window.FORMATION_META||{};
 const svg=document.getElementById('plot'),tip=document.getElementById('tip'),NS='http://www.w3.org/2000/svg';
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
 const LINA=new Set(['Li','Na']);
 const REPORTED_SCL3={
@@ -136,5 +137,6 @@ function render(){
   else if(data[0]) selectMetal(data[0].m);
 }
 render();
+window.addEventListener('research-theme-change',render);
 
 window.addEventListener('research-theme-change',render);
