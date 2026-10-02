@@ -80,3 +80,12 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   KEEP.initExecute()
 })
+
+// Bring the legacy article and archive pages into the same optical system.
+if (!document.querySelector('script[data-site-glass-loader]')) {
+  const glass = document.createElement('script')
+  glass.src = '/js/site-glass.js'
+  glass.defer = true
+  glass.dataset.siteGlassLoader = ''
+  document.head.appendChild(glass)
+}

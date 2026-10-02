@@ -15,3 +15,10 @@
     window.dispatchEvent(new Event('research-theme-change'));
   });
 })();
+if (!document.querySelector('script[data-site-glass-loader]')) {
+  const glass = document.createElement('script');
+  glass.src = '/js/site-glass.js';
+  glass.defer = true;
+  glass.dataset.siteGlassLoader = '';
+  document.head.appendChild(glass);
+}
