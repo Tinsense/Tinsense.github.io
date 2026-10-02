@@ -26,7 +26,7 @@
     const gl = optics.getContext('webgl2', { alpha: true, premultipliedAlpha: false, powerPreference: 'low-power' });
     const max = 32;
     const selector = '.site-header,.liquid-panel,.project-card,.tool-strip a,.card,.phase-panel,.reported-strip,.stats > div,.note-grid article,.header-wrapper,.home-post-item,.post-content-container,.post-content,.page-content,.archive-list,.category-list,.tag-list,.page-main-content-middle .main-content,.liquid-button,.top-action';
-    let program, vao, texture, countLocation, rectanglesLocation, radiiLocation, viewportLocation, textureLocation, lightLocation;
+    let program, vao, texture, countLocation, rectanglesLocation, radiiLocation, priorityLocation, viewportLocation, textureLocation, lightLocation;
     if (gl) {
       const compile = (type, source) => {
         const shader = gl.createShader(type);
@@ -41,13 +41,13 @@
         gl.attachShader(program, compile(gl.FRAGMENT_SHADER, `#version 300 es
 precision highp float;
 #define N ${max}
-uniform vec2 viewport;uniform int count;uniform vec4 rects[N];uniform float radii[N];uniform sampler2D image;uniform float light;
+uniform vec2 viewport;uniform int count;uniform vec4 rects[N];uniform float radii[N];uniform float priority[N];uniform sampler2D image;uniform float light;
 out vec4 color;
 float sdf(vec2 p,vec4 r,float rad){vec2 q=abs(p-r.xy-r.zw*.5)-(r.zw*.5-rad);return length(max(q,0.))+min(max(q.x,q.y),0.)-rad;}
 void main(){
  vec2 p=vec2(gl_FragCoord.x,viewport.y-gl_FragCoord.y);
- int hit=-1;float depth=-1.e5;
- for(int i=0;i<N;i++){if(i>=count)break;float d=sdf(p,rects[i],radii[i]);if(d<.5&&d>depth){hit=i;depth=d;}}
+ int hit=-1;float depth=-1.e5;float front=-1.;
+ for(int i=0;i<N;i++){if(i>=count)break;float d=sdf(p,rects[i],radii[i]);if(d<.5&&(priority[i]>front||(priority[i]==front&&d>depth))){hit=i;depth=d;front=priority[i];}}
  if(hit<0){color=vec4(0.);return;}
  vec4 r=rects[hit];float rad=radii[hit];
  vec2 n=normalize(vec2(sdf(p+vec2(.7,0.),r,rad)-sdf(p-vec2(.7,0.),r,rad),sdf(p+vec2(0.,.7),r,rad)-sdf(p-vec2(0.,.7),r,rad)));
@@ -87,6 +87,7 @@ void main(){
         countLocation = gl.getUniformLocation(program, 'count');
         rectanglesLocation = gl.getUniformLocation(program, 'rects[0]');
         radiiLocation = gl.getUniformLocation(program, 'radii[0]');
+        priorityLocation = gl.getUniformLocation(program, 'priority[0]');
         viewportLocation = gl.getUniformLocation(program, 'viewport');
         textureLocation = gl.getUniformLocation(program, 'image');
         lightLocation = gl.getUniformLocation(program, 'light');
@@ -99,7 +100,7 @@ void main(){
 
     const isLight = () => document.documentElement.dataset.theme === 'light' ||
       (!document.documentElement.dataset.theme && !document.body.classList.contains('dark-mode'));
-    let width = 0, height = 0, dpr = 1, frame = 0, last = -Infinity;
+    let width = 0, height = 0, dpr = 1, frame = 0, last = -Infinity, scrollTimer = 0;
     const resize = () => {
       width = innerWidth; height = innerHeight;
       dpr = Math.min(devicePixelRatio || 1, 1.5);
@@ -134,13 +135,16 @@ void main(){
         ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();
       }
       if(program){
-        const rects=new Float32Array(max*4), radii=new Float32Array(max);
-        const visible=[...document.querySelectorAll(selector)].filter(el=>{
+        const rects=new Float32Array(max*4), radii=new Float32Array(max), priorities=new Float32Array(max);
+        const candidates=[...document.querySelectorAll(selector)];
+        candidates.forEach(el=>{el.dataset.siteGlassLayer=el.parentElement?.closest(selector)?'embedded':'surface';});
+        const visible=candidates.filter(el=>el.dataset.siteGlassLayer==='surface').filter(el=>{
           const r=el.getBoundingClientRect();return r.width>5&&r.height>5&&r.bottom>0&&r.top<height&&r.right>0&&r.left<width;
         }).slice(0,max);
         visible.forEach((el,i)=>{
           const r=el.getBoundingClientRect();rects.set([r.left,r.top,r.width,r.height],i*4);
           radii[i]=Math.min(parseFloat(getComputedStyle(el).borderRadius)||20,r.width/2,r.height/2);
+          priorities[i]=el.matches('.site-header,.header-wrapper')?1:0;
         });
         gl.viewport(0,0,optics.width,optics.height);
         gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
@@ -150,6 +154,7 @@ void main(){
         gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,background);
         gl.uniform1i(textureLocation,0);gl.uniform1i(countLocation,visible.length);
         gl.uniform4fv(rectanglesLocation,rects);gl.uniform1fv(radiiLocation,radii);
+        gl.uniform1fv(priorityLocation,priorities);
         gl.uniform2f(viewportLocation,optics.width,optics.height);
         gl.uniform1f(lightLocation,light?1:0);
         gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
@@ -158,7 +163,14 @@ void main(){
     };
     const refresh=()=>{cancelAnimationFrame(frame);resize();frame=requestAnimationFrame(paint);};
     addEventListener('resize',refresh,{passive:true});
-    addEventListener('scroll',()=>{if(reduce.matches)refresh();},{passive:true});
+    addEventListener('scroll',()=>{
+      optics.style.visibility='hidden';
+      clearTimeout(scrollTimer);
+      scrollTimer=setTimeout(()=>{
+        cancelAnimationFrame(frame);last=-Infinity;paint(performance.now());
+        optics.style.visibility='visible';
+      },140);
+    },{passive:true,capture:true});
     reduce.addEventListener('change',refresh);
     const observer=new MutationObserver(()=>{if(reduce.matches)refresh();});
     observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']});

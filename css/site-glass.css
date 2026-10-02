@@ -38,6 +38,7 @@ body:not(.dark-mode) :is(.header-wrapper,.home-post-item,.post-content-container
 @media(max-width:680px) {
   :root { --studio-radius: 20px; }
   .site-header { left: 12px !important; right: 12px !important; }
+  #hero-title { font-size: clamp(2rem,9.5vw,2.5rem); line-height: 1.18; }
   .page-main-content-middle .main-content { padding: 18px; }
   .phase-columns > div { min-width: 0; overflow-x: auto; }
   .phase-row { grid-template-columns: minmax(62px,1fr) 45px 58px 58px !important; gap: 4px !important; font-size: .58rem !important; }
@@ -49,3 +50,12 @@ body:not(.dark-mode) :is(.header-wrapper,.home-post-item,.post-content-container
 @media(prefers-reduced-motion:reduce) {
   #site-lattice-background,#site-glass-optics { transition: none !important; }
 }
+/* Nested content shares its parent's material, never another blurred sheet. */
+html body [data-site-glass-layer="embedded"] {
+ background:transparent !important; border-color:transparent !important;
+ box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+}
+html body [data-site-glass-layer="embedded"]:is(.liquid-button,.top-action,.tool-strip a) {
+ background:rgba(128,128,128,.06) !important; border-color:rgba(128,128,128,.15) !important;
+}
+html body [data-site-glass-layer="surface"] { transform:none !important; transition:background-color 140ms ease,border-color 140ms ease; }
