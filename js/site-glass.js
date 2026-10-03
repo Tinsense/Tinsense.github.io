@@ -124,6 +124,8 @@ void main() {
   vec4 optics = u_optics[chosen];
   float surfaceFlag = u_flags[chosen];
   float depth = max(-chosenDistance, 0.0);
+  // Keep the whole reading area untouched, not just almost transparent.
+  if (depth > optics.y) { fragColor = vec4(0.0); return; }
 
   /* SDF normal. */
   float eps = 0.8;
@@ -164,7 +166,7 @@ void main() {
   float glare = directional * (1.0 - smoothstep(0.0, max(optics.w, 0.25), depth));
   glare *= (0.97 + 0.03 * sin(u_time * 0.42 + normalAngle * 1.9 + float(chosen) * 0.41)) * opticalEdgeMask;
 
-  /* Refraction is now local to the edge instead of spanning ~46 px inward. */
+  /* A narrow 5–8 CSS-pixel lens rim, independent of panel dimensions. */
   float refractField = 1.0 - smoothstep(0.8, max(optics.y, 2.0), depth);
   refractField = pow(refractField, 1.30) * opticalEdgeMask;
 
@@ -205,7 +207,7 @@ void main() {
     /* A small tangent-space aperture scatters actual lattice pixels at the
        lens edge. It vanishes toward the panel centre, where equations live. */
     vec2 tangent = vec2(-bendDir.y, bendDir.x);
-    vec2 aperture = tangent * (2.8 * refractField) * pxToUV;
+    vec2 aperture = tangent * (1.2 * refractField) * pxToUV;
     vec4 scatterA = texture(u_background, clamp(uvG + aperture, vec2(0.001), vec2(0.999)));
     vec4 scatterB = texture(u_background, clamp(uvG - aperture, vec2(0.001), vec2(0.999)));
     sampledAlpha = max(max(sampleR.a, sampleG.a), max(sampleB.a, max(scatterA.a, scatterB.a)));
@@ -245,7 +247,7 @@ void main() {
 
   /* Light mode has no glass body tint. Dark mode retains only a trace. */
   vec3 darkTint = vec3(0.025, 0.030, 0.038);
-  float darkTintStrength = (1.0 - u_theme) * 0.024;
+  float darkTintStrength = 0.0;
 
   vec3 color = refracted * refractedAlpha;
   color += darkTint * darkTintStrength;
@@ -313,9 +315,11 @@ void main() {
       __publicField(this, "backgroundTexture");
       __publicField(this, "pointerX", window.innerWidth * 0.72);
       __publicField(this, "pointerY", window.innerHeight * 0.18);
+      __publicField(this, "backgroundFrame", "");
+      __publicField(this, "backgroundCanvas", null);
       const canvas = document.createElement("canvas");
       canvas.className = "studio-glass-shared-canvas";
-      canvas.dataset.opticsVersion = "lattice-shared-4";
+      canvas.dataset.opticsVersion = "lattice-live-5";
       canvas.setAttribute("aria-hidden", "true");
       document.body.appendChild(canvas);
       this.canvas = canvas;
@@ -399,23 +403,23 @@ void main() {
         rectData[index * 4 + 3] = rect.height;
         const cssRadius = Number.parseFloat(getComputedStyle(element).borderRadius) || 18;
         radiusData[index] = Math.max(2, Math.min(cssRadius, rect.width * 0.5, rect.height * 0.5));
-        let refractionPx = 19;
-        let refractionRange = 28;
+        let refractionPx = window.innerWidth <= 700 ? 3 : 4.5;
+        let refractionRange = window.innerWidth <= 700 ? 6 : 8;
         let fresnelRange = 1.95;
         let glareRange = 1.18;
         if (element.matches(".site-header, .header-wrapper, .chapter-rail, .mobile-rail-toggle")) {
-          refractionPx = 10;
-          refractionRange = 18;
+          refractionPx = 3;
+          refractionRange = 6;
           fresnelRange = 1.05;
           glareRange = 0.64;
         } else if (element.matches(".rail-item, .top-action, .liquid-button, .text-button, .segmented, .derivation-controls")) {
-          refractionPx = 8;
-          refractionRange = 10.3;
+          refractionPx = 2.5;
+          refractionRange = 5;
           fresnelRange = 1.3;
           glareRange = 0.82;
         } else if (element.matches(".source-note")) {
-          refractionPx = 6.9;
-          refractionRange = 11.8;
+          refractionPx = 2.5;
+          refractionRange = 5;
           fresnelRange = 1.4;
           glareRange = 0.88;
         }
@@ -433,15 +437,20 @@ void main() {
       gl.bindTexture(gl.TEXTURE_2D, this.backgroundTexture);
       if (backgroundCanvas && backgroundCanvas !== this.canvas && backgroundCanvas.width > 1 && backgroundCanvas.height > 1) {
         try {
-          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-          gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA,
-            gl.RGBA,
-            gl.UNSIGNED_BYTE,
-            backgroundCanvas
-          );
+          const backgroundFrame = backgroundCanvas.dataset.wallpaperFrame;
+          if (!backgroundFrame || backgroundFrame !== this.backgroundFrame || backgroundCanvas !== this.backgroundCanvas) {
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+            gl.texImage2D(
+              gl.TEXTURE_2D,
+              0,
+              gl.RGBA,
+              gl.RGBA,
+              gl.UNSIGNED_BYTE,
+              backgroundCanvas
+            );
+            this.backgroundFrame = backgroundFrame || "";
+            this.backgroundCanvas = backgroundCanvas;
+          }
           hasBackground = 1;
         } catch {
           hasBackground = 0;
@@ -487,7 +496,6 @@ void main() {
     let frame = 0;
     let lastPaint = -Infinity;
     let scrollActiveUntil = 0;
-    let scrollTimer = 0;
     let disposed = false;
     const syncElements = () => {
       const candidates = Array.from(document.querySelectorAll(selector)).filter((element) => !element.matches(".hero-lead, .hero-lead-glass"));
@@ -511,15 +519,15 @@ void main() {
     }
     const render = (timestamp) => {
       frame = 0;
-      if (disposed) return;
+      if (disposed || document.hidden) return;
       if (renderer) renderer.canvas.style.display = "block";
       if (renderer) {
         const scrolling = timestamp <= scrollActiveUntil;
-        if (renderer.canvas.style.visibility !== "hidden" && (motion.matches || scrolling || timestamp - lastPaint >= 40)) {
+        if (motion.matches || scrolling || timestamp - lastPaint >= 33) {
           lastPaint = timestamp;
           renderer.render(elements, motion.matches ? 0 : timestamp / 1e3);
         }
-        if (!motion.matches) frame = requestAnimationFrame(render);
+        if (!motion.matches || scrolling) frame = requestAnimationFrame(render);
       }
     };
     const schedule = () => {
@@ -528,15 +536,11 @@ void main() {
       frame = requestAnimationFrame(render);
     };
     const onScroll = () => {
-      scrollActiveUntil = performance.now() + 180;
-      if (renderer) renderer.canvas.style.visibility = "hidden";
-      window.clearTimeout(scrollTimer);
-      scrollTimer = window.setTimeout(() => {
-        if (disposed) return;
-        renderer?.render(elements, motion.matches ? 0 : performance.now() / 1e3);
-        if (renderer) renderer.canvas.style.visibility = "visible";
-        if (!frame) frame = requestAnimationFrame(render);
-      }, 140);
+      const now = performance.now();
+      scrollActiveUntil = now + 180;
+      if (!document.hidden) renderer?.render(elements, motion.matches ? 0 : now / 1e3);
+      lastPaint = now;
+      if (!frame) frame = requestAnimationFrame(render);
     };
     const onPointerMove = (event) => {
       renderer?.setPointer(event.clientX, event.clientY);
@@ -552,12 +556,12 @@ void main() {
     window.visualViewport?.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     motion.addEventListener("change", schedule);
+    document.addEventListener("visibilitychange", schedule);
     syncElements();
     frame = requestAnimationFrame(render);
     return () => {
       disposed = true;
       cancelAnimationFrame(frame);
-      window.clearTimeout(scrollTimer);
       mutation.disconnect();
       theme.disconnect();
       window.removeEventListener("resize", schedule);
@@ -566,6 +570,7 @@ void main() {
       window.visualViewport?.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointerMove);
       motion.removeEventListener("change", schedule);
+      document.removeEventListener("visibilitychange", schedule);
       document.querySelectorAll("[data-liquid-glass]").forEach((element) => {
         delete element.dataset.liquidGlass;
         delete element.dataset.glassLayer;
@@ -579,7 +584,7 @@ void main() {
     if (!ctx) return () => {
     };
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    let width = 0, height = 0, frame = 0, last = -Infinity;
+    let width = 0, height = 0, frame = 0, last = -Infinity, revision = 0;
     const resize = () => {
       width = innerWidth;
       height = innerHeight;
@@ -608,26 +613,26 @@ void main() {
         const x = width * (0.5 + 0.46 * Math.cos(phase));
         const y = height * (0.5 + 0.4 * Math.sin(phase));
         const glow = ctx.createRadialGradient(x, y, 0, x, y, Math.max(width, height) * 0.65);
-        glow.addColorStop(0, `hsla(${hues[k]},35%,${light ? 72 : 49}%,${light ? 0.25 : 0.15})`);
+        glow.addColorStop(0, `hsla(${hues[k]},30%,${light ? 72 : 49}%,${light ? 0.18 : 0.11})`);
         glow.addColorStop(1, `hsla(${hues[k]},35%,50%,0)`);
         ctx.fillStyle = glow;
         ctx.fillRect(0, 0, width, height);
       }
-      const count = 9, depth = 3, step = Math.max(width / 8, height / 7);
-      const yaw = 0.34 + time * 0.035, tilt = 0.3 + 0.12 * Math.sin(time * 0.027), roll = -0.16;
+      const count = 5, depth = 2, step = Math.max(width / 4.5, height / 4.5);
+      const yaw = 0.34 + time * 0.02, tilt = 0.3 + 0.09 * Math.sin(time * 0.02), roll = -0.16;
       const cy = Math.cos(yaw), sy = Math.sin(yaw), ct = Math.cos(tilt), st = Math.sin(tilt);
       const cr = Math.cos(roll), sr = Math.sin(roll), camera = step * 16;
       const nodes = [];
       const index = (i, j, k) => (k * count + j) * count + i;
       for (let k = 0; k < depth; k++) for (let j = 0; j < count; j++) for (let i = 0; i < count; i++) {
-        const x0 = (i - 4) * step, y0 = (j - 4) * step, z0 = (k - 1) * step;
+        const x0 = (i - 2) * step, y0 = (j - 2) * step, z0 = (k - 0.5) * step;
         const x1 = x0 * cy + z0 * sy, z1 = -x0 * sy + z0 * cy;
         const y1 = y0 * ct - z1 * st, z = y0 * st + z1 * ct;
         const scale = camera / (camera - z);
         const x = width * 0.52 + (x1 * cr - y1 * sr) * scale;
         const y = height * 0.51 + (x1 * sr + y1 * cr) * scale;
         const edge = Math.min(1, Math.abs(x - width * 0.5) / (width * 0.5));
-        nodes.push({ x, y, z, scale, alpha: (0.48 + 0.3 * edge) * Math.min(1.2, scale), parity: (i + j + k) % 2, hue: hues[(i + 2 * j + k) % hues.length] });
+        nodes.push({ x, y, z, scale, alpha: (0.24 + 0.32 * edge) * Math.min(1.2, scale), parity: (i + j + k) % 2, hue: hues[(i + 2 * j + k) % hues.length] });
       }
       const bonds = [];
       for (let k = 0; k < depth; k++) for (let j = 0; j < count; j++) for (let i = 0; i < count; i++) {
@@ -638,7 +643,7 @@ void main() {
       }
       bonds.sort((a, b) => a.a.z + a.b.z - b.a.z - b.b.z);
       for (const { a, b } of bonds) {
-        ctx.strokeStyle = `hsla(${a.hue},20%,${light ? 40 : 76}%,${(a.alpha + b.alpha) * (light ? 0.065 : 0.075)})`;
+        ctx.strokeStyle = `hsla(${a.hue},20%,${light ? 40 : 76}%,${(a.alpha + b.alpha) * (light ? 0.045 : 0.05)})`;
         ctx.lineWidth = Math.max(0.6, (a.scale + b.scale) * 0.4);
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
@@ -646,12 +651,8 @@ void main() {
         ctx.stroke();
       }
       for (const p of [...nodes].sort((a, b) => a.z - b.z)) {
-        const radius = (p.parity ? 3.3 : 5.1) * p.scale;
+        const radius = (p.parity ? 2.4 : 3.6) * p.scale;
         if (p.x < -radius * 3 || p.x > width + radius * 3 || p.y < -radius * 3 || p.y > height + radius * 3) continue;
-        ctx.fillStyle = `hsla(${p.hue},30%,${light ? 44 : 74}%,${p.alpha * 0.055})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, radius * 2.5, 0, Math.PI * 2);
-        ctx.fill();
         const sphere = ctx.createRadialGradient(p.x - radius * 0.28, p.y - radius * 0.35, 0.1, p.x, p.y, radius);
         sphere.addColorStop(0, `hsla(${p.hue},25%,${light ? 73 : 88}%,${p.alpha * 0.78})`);
         sphere.addColorStop(1, `hsla(${p.hue},25%,${light ? 34 : 57}%,${p.alpha * 0.55})`);
@@ -660,18 +661,8 @@ void main() {
         ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
         ctx.fill();
       }
-      for (let k = 0; k < 3; k++) {
-        ctx.beginPath();
-        for (let x = -10; x <= width + 10; x += 8) {
-          const y = height * 0.54 + k * 29 + 49 * Math.sin(x * 6e-3 - time * 0.22) + 17 * Math.sin(x * 0.012 - time * 0.14);
-          if (x === -10) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = `hsla(${hues[k]},25%,${light ? 40 : 76}%,${light ? 0.09 : 0.12})`;
-        ctx.lineWidth = k === 1 ? 1.6 : 0.8;
-        ctx.stroke();
-      }
-      canvas.dataset.wallpaperVersion = "rotating-lattice-5";
+      canvas.dataset.wallpaperVersion = "quiet-lattice-6";
+      canvas.dataset.wallpaperFrame = String(++revision);
       if (!motion.matches) frame = requestAnimationFrame(draw);
     };
     const refresh = () => {
