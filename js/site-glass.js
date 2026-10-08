@@ -241,8 +241,8 @@ void main() {
   /* Small range, clean specular response. */
   float environmentLuma = dot(environment, vec3(0.2126, 0.7152, 0.0722));
   vec3 reflectedLight = mix(vec3(1.0), environment, 0.16);
-  vec3 highlight = reflectedLight * fresnel * mix(0.052, 0.025, environmentLuma);
-  highlight += reflectedLight * glare * mix(0.115, 0.052, environmentLuma);
+  vec3 highlight = reflectedLight * fresnel * mix(0.085, 0.038, environmentLuma);
+  highlight += reflectedLight * glare * mix(0.16, 0.075, environmentLuma);
   highlight += rimDispersion * fresnel * (0.0045 + 0.0080 * glare);
 
   /* Light mode has no glass body tint. Dark mode retains only a trace. */
@@ -319,7 +319,7 @@ void main() {
       __publicField(this, "backgroundCanvas", null);
       const canvas = document.createElement("canvas");
       canvas.className = "studio-glass-shared-canvas";
-      canvas.dataset.opticsVersion = "lattice-live-5";
+      canvas.dataset.opticsVersion = "crystal-glass-6";
       canvas.setAttribute("aria-hidden", "true");
       document.body.appendChild(canvas);
       this.canvas = canvas;
@@ -523,11 +523,12 @@ void main() {
       if (renderer) renderer.canvas.style.display = "block";
       if (renderer) {
         const scrolling = timestamp <= scrollActiveUntil;
-        if (motion.matches || scrolling || timestamp - lastPaint >= 33) {
+        const animating = elements.some((element) => element.matches(".chapter-menu") && element.getAnimations().some((animation) => animation.playState === "running"));
+        if (motion.matches || scrolling || animating || timestamp - lastPaint >= 33) {
           lastPaint = timestamp;
           renderer.render(elements, motion.matches ? 0 : timestamp / 1e3);
         }
-        if (!motion.matches || scrolling) frame = requestAnimationFrame(render);
+        if (!motion.matches || scrolling || animating) frame = requestAnimationFrame(render);
       }
     };
     const schedule = () => {
@@ -579,11 +580,49 @@ void main() {
       delete document.documentElement.dataset.glassEngine;
     };
   }
+  const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  function neighbors(atoms, length) {
+    const pairs = [];
+    atoms.forEach((a, i) => atoms.forEach((b, j) => {
+      if (j > i && Math.abs(distance(a, b) - length) < 1e-6) pairs.push([i, j]);
+    }));
+    return pairs;
+  }
+  function diamondCell() {
+    const atoms = [];
+    for (const x of [0, 1]) for (const y of [0, 1]) for (const z of [0, 1]) atoms.push({ x, y, z, tone: 0 });
+    for (let axis = 0; axis < 3; axis++) for (const side of [0, 1]) {
+      const p = [0.5, 0.5, 0.5];
+      p[axis] = side;
+      atoms.push({ x: p[0], y: p[1], z: p[2], tone: 0 });
+    }
+    for (const [x, y, z] of [[0.25, 0.25, 0.25], [0.25, 0.75, 0.75], [0.75, 0.25, 0.75], [0.75, 0.75, 0.25]]) atoms.push({ x, y, z, tone: 1 });
+    const frame = neighbors(atoms.slice(0, 8), 1);
+    return { atoms: atoms.map((p) => ({ ...p, x: p.x - 0.5, y: p.y - 0.5, z: p.z - 0.5 })), bonds: neighbors(atoms, Math.sqrt(3) / 4), frame, radius: 0.068 };
+  }
+  function hcpCell() {
+    const atoms = [], frame = [];
+    const c = Math.sqrt(8 / 3);
+    for (const y of [-c / 2, c / 2]) {
+      for (let i = 0; i < 6; i++) {
+        const a = i * Math.PI / 3;
+        atoms.push({ x: Math.cos(a), y, z: Math.sin(a), tone: 0 });
+      }
+      atoms.push({ x: 0, y, z: 0, tone: 0 });
+    }
+    for (let i = 0; i < 3; i++) {
+      const a = Math.PI / 6 + i * 2 * Math.PI / 3;
+      atoms.push({ x: Math.cos(a) / Math.sqrt(3), y: 0, z: Math.sin(a) / Math.sqrt(3), tone: 1 });
+    }
+    for (let i = 0; i < 6; i++) frame.push([i, (i + 1) % 6], [i + 7, (i + 1) % 6 + 7], [i, i + 7]);
+    return { atoms, bonds: neighbors(atoms, 1), frame, radius: 0.125 };
+  }
   function startLatticeWallpaper(canvas) {
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return () => {
     };
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
+    const cells = [diamondCell(), hcpCell()];
     let width = 0, height = 0, frame = 0, last = -Infinity, revision = 0;
     const resize = () => {
       width = innerWidth;
@@ -595,6 +634,55 @@ void main() {
       canvas.style.height = height + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
+    const crystal = (cell, cx, cy, size, yaw, tilt, roll, light) => {
+      const project = (p) => {
+        const x = p.x * Math.cos(yaw) + p.z * Math.sin(yaw), z = -p.x * Math.sin(yaw) + p.z * Math.cos(yaw);
+        const y = p.y * Math.cos(tilt) - z * Math.sin(tilt), depth = p.y * Math.sin(tilt) + z * Math.cos(tilt);
+        const scale = 6 / (6 - depth);
+        return { x: cx + (x * Math.cos(roll) - y * Math.sin(roll)) * size * scale, y: cy + (x * Math.sin(roll) + y * Math.cos(roll)) * size * scale, z: depth, scale, tone: p.tone };
+      };
+      const points = cell.atoms.map(project);
+      const marks = [];
+      const rod = (a, b, outline) => {
+        const start2 = cell.atoms[a], end = cell.atoms[b];
+        for (let n = 0; n < 4; n++) {
+          const at = (t) => project({ x: start2.x + (end.x - start2.x) * t, y: start2.y + (end.y - start2.y) * t, z: start2.z + (end.z - start2.z) * t, tone: 0 });
+          const p = at(n / 4), q = at((n + 1) / 4);
+          marks.push({ z: (p.z + q.z) / 2, paint: () => {
+            ctx.lineCap = "round";
+            ctx.lineWidth = outline ? 0.7 : Math.max(1.2, size * 8e-3) * (p.scale + q.scale) / 2;
+            ctx.strokeStyle = outline ? light ? "rgba(109,135,157,.23)" : "rgba(176,195,208,.16)" : light ? "rgba(235,232,224,.9)" : "rgba(156,176,190,.45)";
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+            if (!outline) {
+              ctx.lineWidth = 0.65;
+              ctx.strokeStyle = light ? "rgba(255,255,253,.68)" : "rgba(223,231,232,.28)";
+              ctx.stroke();
+            }
+          } });
+        }
+      };
+      cell.frame.forEach(([a, b]) => rod(a, b, true));
+      cell.bonds.forEach(([a, b]) => rod(a, b, false));
+      for (const p of points) marks.push({ z: p.z, paint: () => {
+        const r = cell.radius * size * p.scale;
+        const fill = ctx.createRadialGradient(p.x - r * 0.34, p.y - r * 0.42, r * 0.02, p.x + r * 0.18, p.y + r * 0.18, r * 1.25);
+        const palette = p.tone ? light ? ["#fffdf4", "#d5d2c7", "#939d9f"] : ["#d7d9d1", "#8c979c", "#465863"] : light ? ["#e3eff4", "#a1b8c8", "#617e98"] : ["#b5cbd6", "#66859c", "#304a60"];
+        fill.addColorStop(0, palette[0]);
+        fill.addColorStop(0.4, palette[1]);
+        fill.addColorStop(1, palette[2]);
+        ctx.fillStyle = fill;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fill();
+      } });
+      ctx.save();
+      ctx.globalAlpha = light ? 0.7 : 0.48;
+      marks.sort((a, b) => a.z - b.z).forEach((mark) => mark.paint());
+      ctx.restore();
+    };
     const draw = (timestamp) => {
       frame = 0;
       if (document.hidden) return;
@@ -603,65 +691,34 @@ void main() {
         return;
       }
       last = timestamp;
-      const light = document.documentElement.dataset.theme === "light";
-      const time = motion.matches ? 0 : timestamp / 1e3;
-      ctx.fillStyle = light ? "#f5f5f7" : "#080b11";
+      const light = document.documentElement.dataset.theme === "light", t = motion.matches ? 0 : timestamp / 1e3;
+      const mobile = width < 700;
+      ctx.fillStyle = light ? "#e9edf0" : "#101820";
       ctx.fillRect(0, 0, width, height);
-      const hues = [210, 157, 276, 27];
-      for (let k = 0; k < hues.length; k++) {
-        const phase = k * Math.PI * 0.5 + time * 0.025;
-        const x = width * (0.5 + 0.46 * Math.cos(phase));
-        const y = height * (0.5 + 0.4 * Math.sin(phase));
-        const glow = ctx.createRadialGradient(x, y, 0, x, y, Math.max(width, height) * 0.65);
-        glow.addColorStop(0, `hsla(${hues[k]},30%,${light ? 72 : 49}%,${light ? 0.18 : 0.11})`);
-        glow.addColorStop(1, `hsla(${hues[k]},35%,50%,0)`);
-        ctx.fillStyle = glow;
+      for (const [x, y, r, color] of [
+        [width * 0.04, height * 0.25, Math.max(width * 0.44, height * 0.55), light ? "rgba(134,161,180,.40)" : "rgba(71,105,131,.25)"],
+        [width * 0.97, height * 0.78, Math.max(width * 0.4, height * 0.5), light ? "rgba(207,199,182,.38)" : "rgba(157,146,122,.12)"]
+      ]) {
+        const wash = ctx.createRadialGradient(x, y, 0, x, y, r);
+        wash.addColorStop(0, color);
+        wash.addColorStop(1, "rgba(140,160,175,0)");
+        ctx.fillStyle = wash;
         ctx.fillRect(0, 0, width, height);
       }
-      const count = 5, depth = 2, step = Math.max(width / 4.5, height / 4.5);
-      const yaw = 0.34 + time * 0.02, tilt = 0.3 + 0.09 * Math.sin(time * 0.02), roll = -0.16;
-      const cy = Math.cos(yaw), sy = Math.sin(yaw), ct = Math.cos(tilt), st = Math.sin(tilt);
-      const cr = Math.cos(roll), sr = Math.sin(roll), camera = step * 16;
-      const nodes = [];
-      const index = (i, j, k) => (k * count + j) * count + i;
-      for (let k = 0; k < depth; k++) for (let j = 0; j < count; j++) for (let i = 0; i < count; i++) {
-        const x0 = (i - 2) * step, y0 = (j - 2) * step, z0 = (k - 0.5) * step;
-        const x1 = x0 * cy + z0 * sy, z1 = -x0 * sy + z0 * cy;
-        const y1 = y0 * ct - z1 * st, z = y0 * st + z1 * ct;
-        const scale = camera / (camera - z);
-        const x = width * 0.52 + (x1 * cr - y1 * sr) * scale;
-        const y = height * 0.51 + (x1 * sr + y1 * cr) * scale;
-        const edge = Math.min(1, Math.abs(x - width * 0.5) / (width * 0.5));
-        nodes.push({ x, y, z, scale, alpha: (0.24 + 0.32 * edge) * Math.min(1.2, scale), parity: (i + j + k) % 2, hue: hues[(i + 2 * j + k) % hues.length] });
-      }
-      const bonds = [];
-      for (let k = 0; k < depth; k++) for (let j = 0; j < count; j++) for (let i = 0; i < count; i++) {
-        const a = nodes[index(i, j, k)];
-        if (i + 1 < count) bonds.push({ a, b: nodes[index(i + 1, j, k)] });
-        if (j + 1 < count) bonds.push({ a, b: nodes[index(i, j + 1, k)] });
-        if (k + 1 < depth) bonds.push({ a, b: nodes[index(i, j, k + 1)] });
-      }
-      bonds.sort((a, b) => a.a.z + a.b.z - b.a.z - b.b.z);
-      for (const { a, b } of bonds) {
-        ctx.strokeStyle = `hsla(${a.hue},20%,${light ? 40 : 76}%,${(a.alpha + b.alpha) * (light ? 0.045 : 0.05)})`;
-        ctx.lineWidth = Math.max(0.6, (a.scale + b.scale) * 0.4);
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.stroke();
-      }
-      for (const p of [...nodes].sort((a, b) => a.z - b.z)) {
-        const radius = (p.parity ? 2.4 : 3.6) * p.scale;
-        if (p.x < -radius * 3 || p.x > width + radius * 3 || p.y < -radius * 3 || p.y > height + radius * 3) continue;
-        const sphere = ctx.createRadialGradient(p.x - radius * 0.28, p.y - radius * 0.35, 0.1, p.x, p.y, radius);
-        sphere.addColorStop(0, `hsla(${p.hue},25%,${light ? 73 : 88}%,${p.alpha * 0.78})`);
-        sphere.addColorStop(1, `hsla(${p.hue},25%,${light ? 34 : 57}%,${p.alpha * 0.55})`);
-        ctx.fillStyle = sphere;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      canvas.dataset.wallpaperVersion = "quiet-lattice-6";
+      const size = mobile ? Math.min(230, width * 0.59) : Math.min(470, Math.max(270, width * 0.28));
+      const orbitX = Math.sin(t * 0.026) * (mobile ? 7 : 18), orbitY = Math.cos(t * 0.023) * (mobile ? 12 : 24);
+      crystal(cells[0], width * (mobile ? 0.055 : 0.085) + orbitX, height * 0.29 + orbitY, size, 0.55 + t * 0.045, -0.24, -0.17, light);
+      crystal(cells[1], width * (mobile ? 0.965 : 0.935) - orbitX, height * 0.73 - orbitY, size * 0.56, -0.4 - t * 0.037, 0.28, 0.17, light);
+      const quiet = ctx.createLinearGradient(0, 0, width, 0), base = light ? "239,242,243" : "16,24,32";
+      quiet.addColorStop(0, `rgba(${base},0)`);
+      quiet.addColorStop(0.3, `rgba(${base},.28)`);
+      quiet.addColorStop(0.5, `rgba(${base},.76)`);
+      quiet.addColorStop(0.7, `rgba(${base},.28)`);
+      quiet.addColorStop(1, `rgba(${base},0)`);
+      ctx.fillStyle = quiet;
+      ctx.fillRect(0, 0, width, height);
+      canvas.dataset.wallpaperVersion = "crystal-duet-7";
+      canvas.dataset.crystalCells = "diamond,hcp";
       canvas.dataset.wallpaperFrame = String(++revision);
       if (!motion.matches) frame = requestAnimationFrame(draw);
     };
