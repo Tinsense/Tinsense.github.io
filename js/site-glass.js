@@ -712,14 +712,15 @@ void main() {
       ctx.rotate(tilt);
       ctx.translate(-cx, -cy);
       ctx.save();
-      ctx.translate(cx - horizon * 1.3, cy + horizon * 0.07);
-      ctx.scale(1, 0.13);
-      const emission = ctx.createRadialGradient(0, 0, 0, 0, 0, horizon * 3.6);
-      emission.addColorStop(0, light ? "rgba(66,88,104,.08)" : "rgba(220,222,186,.25)");
-      emission.addColorStop(0.42, light ? "rgba(66,88,104,.025)" : "rgba(220,222,186,.09)");
+      ctx.translate(cx - horizon * 0.65, cy + horizon * 0.07);
+      ctx.scale(1, 0.145);
+      const emission = ctx.createRadialGradient(0, 0, 0, 0, 0, horizon * 4.4);
+      emission.addColorStop(0, light ? "rgba(66,88,104,.08)" : "rgba(220,222,186,.24)");
+      emission.addColorStop(0.42, light ? "rgba(66,88,104,.04)" : "rgba(220,222,186,.12)");
+      emission.addColorStop(0.75, light ? "rgba(66,88,104,.015)" : "rgba(220,222,186,.045)");
       emission.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = emission;
-      ctx.fillRect(-horizon * 3.6, -horizon * 3.6, horizon * 7.2, horizon * 7.2);
+      ctx.fillRect(-horizon * 4.4, -horizon * 4.4, horizon * 8.8, horizon * 8.8);
       ctx.restore();
       const drawDisk = (front) => {
         ctx.fillStyle = light ? "#435f70" : "#f0efd0";
@@ -728,10 +729,10 @@ void main() {
           if (depth >= 0 !== front) continue;
           const sideAngle = Math.cos(angle), left = Math.max(0, -sideAngle);
           const ripple = 1 + 0.035 * Math.sin(angle * 3 + point.radius * 2.7 - t * 0.18);
-          const x = cx + sideAngle * point.radius * horizon * (0.92 - 0.2 * sideAngle) * ripple;
-          const y = cy + depth * point.radius * horizon * (0.13 + 0.035 * left) + point.thickness * horizon * (0.075 + 0.075 * left);
+          const x = cx + sideAngle * point.radius * horizon * (1.03 - 0.07 * sideAngle) * ripple;
+          const y = cy + depth * point.radius * horizon * (0.13 + 0.035 * left) + point.thickness * horizon * (0.105 + 0.065 * left);
           const radial = Math.exp(-(point.radius - 1.02) * 0.3);
-          const side = 0.25 + 0.75 * Math.pow((1 - sideAngle) * 0.5, 1.35);
+          const side = 0.68 + 0.32 * Math.pow((1 - sideAngle) * 0.5, 1.35);
           const clump = 0.86 + 0.14 * Math.sin(angle * 4 + point.radius * 1.6 - t * 0.12);
           dot(x, y, point, (light ? 0.43 : 0.95) * point.brightness * radial * side * clump);
         }
