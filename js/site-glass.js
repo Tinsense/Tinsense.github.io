@@ -3,6 +3,114 @@ var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { en
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 (function() {
   "use strict";
+  const NS = "http://www.w3.org/2000/svg";
+  const svgNode = (name, attrs = {}) => {
+    const node = document.createElementNS(NS, name);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+    return node;
+  };
+  const supportsNativeBackdrop = () => /Chrome\/|Chromium\/|Edg\//.test(navigator.userAgent) && !/CriOS|EdgiOS/.test(navigator.userAgent) && CSS.supports("backdrop-filter", "url(#glass-probe)");
+  class NativeBackdrop {
+    constructor() {
+      __publicField(this, "svg", svgNode("svg", { "aria-hidden": "true", width: "0", height: "0" }));
+      __publicField(this, "defs", svgNode("defs"));
+      __publicField(this, "lenses", /* @__PURE__ */ new Map());
+      __publicField(this, "sequence", 0);
+      __publicField(this, "invalidated", false);
+      this.svg.classList.add("studio-glass-filter-defs");
+      this.svg.append(this.defs);
+      document.body.append(this.svg);
+    }
+    update(element, width, height, radius, strength, range, filter) {
+      let lens = this.lenses.get(element);
+      if (!lens) {
+        const id = `studio-native-lens-${++this.sequence}`;
+        const f = svgNode("filter", { id, x: "0", y: "0", width: "100%", height: "100%", filterUnits: "userSpaceOnUse", primitiveUnits: "userSpaceOnUse", "color-interpolation-filters": "sRGB" });
+        const image = svgNode("feImage", { result: "lens-map", preserveAspectRatio: "none" });
+        f.append(image, svgNode("feDisplacementMap", { in: "SourceGraphic", in2: "lens-map", scale: String(strength * 2), xChannelSelector: "R", yChannelSelector: "G" }));
+        const layer = document.createElement("span");
+        layer.className = "studio-glass-optics";
+        layer.setAttribute("aria-hidden", "true");
+        const shine = document.createElement("canvas");
+        shine.className = "studio-glass-surface-canvas";
+        layer.append(shine);
+        element.append(layer);
+        this.defs.append(f);
+        lens = { filter: f, image, layer, shine, key: "" };
+        this.lenses.set(element, lens);
+        element.dataset.refractionSource = "dom-backdrop";
+        element.style.setProperty("--glass-native-lens", `url("#${id}")`);
+      }
+      const key = [width, height, radius, strength, range].map((v) => v.toFixed(1)).join(":");
+      if (lens.key !== key) {
+        lens.key = key;
+        lens.filter.setAttribute("width", String(width));
+        lens.filter.setAttribute("height", String(height));
+        lens.image.setAttribute("width", String(width));
+        lens.image.setAttribute("height", String(height));
+        lens.filter.lastElementChild.setAttribute("scale", String(strength * 2));
+        const scale = Math.min(1, 512 / width, 2048 / height), w = Math.max(1, Math.ceil(width * scale)), h = Math.max(1, Math.ceil(height * scale));
+        const map = document.createElement("canvas");
+        map.width = w;
+        map.height = h;
+        const ctx = map.getContext("2d"), pixels = ctx.createImageData(w, h);
+        const glow = lens.shine;
+        glow.width = w;
+        glow.height = h;
+        const glowCtx = glow.getContext("2d"), lights = glowCtx.createImageData(w, h);
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          const px = (x + 0.5) / scale - width / 2, py = (y + 0.5) / scale - height / 2;
+          const qx = Math.abs(px) - width / 2 + radius, qy = Math.abs(py) - height / 2 + radius;
+          const ox = Math.max(qx, 0), oy = Math.max(qy, 0), length = Math.hypot(ox, oy);
+          const distance = Math.min(Math.max(qx, qy), 0) + length - radius, depth = Math.max(0, -distance);
+          let nx = length ? ox / length : qx > qy ? 1 : 0, ny = length ? oy / length : qy >= qx ? 1 : 0;
+          nx *= Math.sign(px);
+          ny *= Math.sign(py);
+          const t = Math.min(1, depth / range), bend = Math.pow(1 - t * t * (3 - 2 * t), 0.88);
+          const offset = (y * w + x) * 4;
+          pixels.data[offset] = Math.round(127.5 + 127.5 * nx * bend);
+          pixels.data[offset + 1] = Math.round(127.5 + 127.5 * ny * bend);
+          pixels.data[offset + 2] = 128;
+          pixels.data[offset + 3] = 255;
+          const diagonal = Math.pow(Math.max(0, (-nx - ny) / Math.SQRT2), 6);
+          const far = Math.pow(Math.max(0, (nx + ny) / Math.SQRT2), 8) * 0.13;
+          const edge = Math.max(0, 1 - depth / 1.6), coverage = Math.max(0, Math.min(1, 0.5 - distance));
+          lights.data[offset] = lights.data[offset + 1] = lights.data[offset + 2] = 255;
+          lights.data[offset + 3] = Math.round(255 * coverage * (0.018 * Math.pow(edge, 2) + 0.16 * (diagonal + far) * edge));
+        }
+        ctx.putImageData(pixels, 0, 0);
+        lens.image.setAttribute("href", map.toDataURL());
+        glowCtx.putImageData(lights, 0, 0);
+      }
+      const material = filter === "none" ? "" : filter.replace(/url\([^)]*\)/g, "").trim();
+      element.style.setProperty("--glass-native-frost", material || "blur(0px)");
+      element.dataset.nativeLens = "true";
+    }
+    retain(elements) {
+      for (const [element, lens] of this.lenses) if (!elements.has(element)) {
+        lens.filter.remove();
+        lens.layer.remove();
+        element.style.removeProperty("--glass-native-lens");
+        element.style.removeProperty("--glass-native-frost");
+        delete element.dataset.nativeLens;
+        delete element.dataset.refractionSource;
+        this.lenses.delete(element);
+      }
+    }
+    invalidate() {
+      this.invalidated = true;
+    }
+    beginFrame() {
+      if (this.invalidated) {
+        for (const element of this.lenses.keys()) delete element.dataset.nativeLens;
+        this.invalidated = false;
+      }
+    }
+    dispose() {
+      this.retain(/* @__PURE__ */ new Set());
+      this.svg.remove();
+    }
+  }
   const SURFACE_SELECTOR = [
     ".site-header",
     ".chapter-rail",
@@ -61,6 +169,8 @@ out vec4 fragColor;
 uniform vec2 u_viewport;
 uniform float u_dpr;
 uniform int u_count;
+// 0 is the combined diagnostic pass; positive indices draw one local layer.
+uniform int u_surfaceIndex;
 uniform vec4 u_rects[MAX_SURFACES];
 uniform float u_radii[MAX_SURFACES];
 uniform vec4 u_optics[MAX_SURFACES];
@@ -124,6 +234,7 @@ void main() {
 
   for (int i = 0; i < MAX_SURFACES; i++) {
     if (i >= u_count) break;
+    if (u_surfaceIndex > 0 && i != u_surfaceIndex - 1) continue;
     float d = surfaceSDF(cssPoint, u_rects[i], u_radii[i]);
     if (d <= 0.75) {
       float score = abs(d);
@@ -338,9 +449,12 @@ void main() {
       __publicField(this, "pointerY", window.innerHeight * 0.18);
       __publicField(this, "backgroundFrame", "");
       __publicField(this, "backgroundCanvas", null);
+      __publicField(this, "native", supportsNativeBackdrop() ? new NativeBackdrop() : null);
+      __publicField(this, "layers", /* @__PURE__ */ new Map());
       const canvas = document.createElement("canvas");
       canvas.className = "studio-glass-shared-canvas";
-      canvas.dataset.opticsVersion = "crystal-glass-12";
+      canvas.dataset.opticsVersion = "crystal-glass-13";
+      canvas.dataset.presentation = this.native ? "native-backdrop" : "element-attached";
       canvas.setAttribute("aria-hidden", "true");
       document.body.appendChild(canvas);
       this.canvas = canvas;
@@ -399,7 +513,11 @@ void main() {
       this.pointerX = x;
       this.pointerY = y;
     }
+    invalidateMaterial() {
+      this.native?.invalidate();
+    }
     render(elements, time) {
+      this.native?.beginFrame();
       const gl = this.gl;
       const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       const width = Math.max(1, Math.round(window.innerWidth * dpr));
@@ -410,20 +528,21 @@ void main() {
         this.canvas.style.width = `${window.innerWidth}px`;
         this.canvas.style.height = `${window.innerHeight}px`;
       }
-      const visible = elements.map((element) => ({ element, rect: element.getBoundingClientRect() })).filter(
-        ({ rect }) => rect.width > 3 && rect.height > 3 && rect.bottom > -40 && rect.top < window.innerHeight + 40 && rect.right > -40 && rect.left < window.innerWidth + 40
+      const visible = elements.map((element) => ({ element, rect: element.getBoundingClientRect(), style: getComputedStyle(element) })).filter(
+        ({ rect }) => rect.width > 3 && rect.height > 3 && // Bake local native maps before a fast fling reaches the next unit.
+        rect.bottom > -window.innerHeight && rect.top < window.innerHeight * 2 && rect.right > -40 && rect.left < window.innerWidth + 40
       ).slice(0, MAX_SURFACES);
       const rectData = new Float32Array(MAX_SURFACES * 4);
       const radiusData = new Float32Array(MAX_SURFACES);
       const opticsData = new Float32Array(MAX_SURFACES * 4);
       const frostData = new Float32Array(MAX_SURFACES * 3);
       const flagData = new Float32Array(MAX_SURFACES);
-      visible.forEach(({ element, rect }, index) => {
+      visible.forEach(({ element, rect, style }, index) => {
         rectData[index * 4] = rect.left;
         rectData[index * 4 + 1] = rect.top;
         rectData[index * 4 + 2] = rect.width;
         rectData[index * 4 + 3] = rect.height;
-        const cssRadius = Number.parseFloat(getComputedStyle(element).borderRadius) || 18;
+        const cssRadius = Number.parseFloat(style.borderRadius) || 18;
         radiusData[index] = Math.max(2, Math.min(cssRadius, rect.width * 0.5, rect.height * 0.5));
         const materialElement = element.dataset.glassLayer === "control" ? element.parentElement?.closest('[data-glass-layer="surface"]') ?? element : element;
         const filter = getComputedStyle(materialElement).backdropFilter;
@@ -459,14 +578,18 @@ void main() {
         opticsData[index * 4 + 2] = fresnelRange;
         opticsData[index * 4 + 3] = glareRange;
         flagData[index] = element.matches(".chapter-menu") ? 5 : element.matches(".search-panel") ? 4 : element.matches(".liquid-button,.top-action,.brand,.chapter-title,.chapter-menu-trigger,.mobile-rail-toggle,.header-center,.header-link,.tool-strip a") ? 3 : element.matches(".chapter-rail") ? 2 : element.matches(".site-header,.header-wrapper") ? 1 : 0;
+        if (this.native) {
+          this.native.update(element, element.offsetWidth, element.offsetHeight, radiusData[index], refractionPx, refractionRange, style.backdropFilter);
+        }
       });
+      this.native?.retain(new Set(visible.map(({ element }) => element)));
       const backgroundCanvas = document.querySelector(
         "canvas.lattice-atmosphere, canvas[data-testid='lattice-atmosphere']"
       );
       let hasBackground = 0;
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this.backgroundTexture);
-      if (backgroundCanvas && backgroundCanvas !== this.canvas && backgroundCanvas.width > 1 && backgroundCanvas.height > 1) {
+      if (!this.native && backgroundCanvas && backgroundCanvas !== this.canvas && backgroundCanvas.width > 1 && backgroundCanvas.height > 1) {
         try {
           const backgroundFrame = backgroundCanvas.dataset.wallpaperFrame;
           if (!backgroundFrame || backgroundFrame !== this.backgroundFrame || backgroundCanvas !== this.backgroundCanvas) {
@@ -509,10 +632,55 @@ void main() {
         uniform(gl, this.program, "u_theme"),
         document.documentElement.dataset.theme === "light" ? 1 : 0
       );
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      if (!this.native) {
+        gl.enable(gl.SCISSOR_TEST);
+        const retained = new Set(visible.map(({ element }) => element));
+        for (const [element, layer] of this.layers) if (!retained.has(element)) {
+          layer.host.remove();
+          this.layers.delete(element);
+        }
+        visible.forEach(({ element, rect, style }, index) => {
+          const x = Math.max(0, Math.floor(rect.left * dpr)), y = Math.max(0, Math.floor(rect.top * dpr));
+          const right = Math.min(width, Math.ceil(rect.right * dpr)), bottom = Math.min(height, Math.ceil(rect.bottom * dpr));
+          if (right <= x || bottom <= y) return;
+          gl.scissor(x, height - bottom, right - x, bottom - y);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.uniform1i(uniform(gl, this.program, "u_surfaceIndex"), index + 1);
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+          let layer = this.layers.get(element);
+          if (!layer) {
+            const host = document.createElement("span");
+            host.className = "studio-glass-optics";
+            host.setAttribute("aria-hidden", "true");
+            const canvas = document.createElement("canvas");
+            canvas.className = "studio-glass-surface-canvas";
+            host.append(canvas);
+            const ctx = canvas.getContext("2d");
+            layer = { host, canvas, ctx };
+            this.layers.set(element, layer);
+            element.append(host);
+            element.dataset.refractionSource = "wallpaper-fallback";
+          }
+          const sx = rect.width / element.offsetWidth, sy = rect.height / element.offsetHeight;
+          layer.host.style.left = `-${parseFloat(style.borderLeftWidth) || 0}px`;
+          layer.host.style.top = `-${parseFloat(style.borderTopWidth) || 0}px`;
+          layer.host.style.width = `${element.offsetWidth}px`;
+          layer.host.style.height = `${element.offsetHeight}px`;
+          if (layer.canvas.width !== right - x) layer.canvas.width = right - x;
+          if (layer.canvas.height !== bottom - y) layer.canvas.height = bottom - y;
+          Object.assign(layer.canvas.style, { left: `${(x / dpr - rect.left) / sx}px`, top: `${(y / dpr - rect.top) / sy}px`, width: `${(right - x) / dpr / sx}px`, height: `${(bottom - y) / dpr / sy}px` });
+          layer.ctx.clearRect(0, 0, right - x, bottom - y);
+          layer.ctx.drawImage(this.canvas, x, y, right - x, bottom - y, 0, 0, right - x, bottom - y);
+        });
+        gl.disable(gl.SCISSOR_TEST);
+      }
+      gl.uniform1i(uniform(gl, this.program, "u_surfaceIndex"), 0);
       gl.bindVertexArray(null);
     }
     dispose() {
+      this.native?.dispose();
+      for (const layer of this.layers.values()) layer.host.remove();
+      this.layers.clear();
       const gl = this.gl;
       gl.deleteProgram(this.program.program);
       gl.deleteBuffer(this.buffer);
@@ -570,6 +738,7 @@ void main() {
       }
     };
     const schedule = () => {
+      renderer?.invalidateMaterial();
       syncElements();
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(render);
@@ -577,8 +746,6 @@ void main() {
     const onScroll = () => {
       const now = performance.now();
       scrollActiveUntil = now + 180;
-      if (!document.hidden) renderer?.render(elements, motion.matches ? 0 : now / 1e3);
-      lastPaint = now;
       if (!frame) frame = requestAnimationFrame(render);
     };
     const onPointerMove = (event) => {
