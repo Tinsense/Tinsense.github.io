@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#000000">
 <title>二维相图构建 · 晶格</title>
-<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+
 <link rel="stylesheet" href="../css/research-shell.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -16,6 +16,7 @@
   <div class="header-actions">
     <a class="header-link" href="../metal-bde/">数据与热力图</a>
     <a class="header-link" href="../metal-formation-energy/">形成能图</a>
+    <a class="header-link" href="../sulfur-chlorides/">S–Cl 热化学</a>
     <button class="top-action" id="theme-toggle" type="button" aria-label="切换明暗主题"><svg class="icon" id="theme-icon" viewBox="0 0 24 24"></svg></button>
   </div>
 </header>
@@ -35,14 +36,39 @@
 
   <section class="square-layout">
     <div class="card plot-card">
-      <div class="section-kicker"><span>01</span><div class="section-title">M–S / M–Cl descriptor phase space</div></div>
+      <div class="plot-top">
+        <div class="section-kicker"><span>01</span><div class="section-title">M–S / M–Cl descriptor phase space</div></div>
+        <label class="scl-visibility" for="scl-toggle"><input id="scl-toggle" type="checkbox" checked><span>叠加 S–Cl 参照</span></label>
+      </div>
       <div class="plot-stage" id="root">
         <svg id="plot" viewBox="0 0 720 720" preserveAspectRatio="xMidYMid meet" aria-label="M-S versus M-Cl interactive plot"></svg>
         <div id="tip" class="tip"></div>
       </div>
+      <div id="scl-compare" class="scl-compare" aria-live="polite">
+        <div class="scl-compare-head">
+          <div><span class="scl-overline">BOND ENERGY · REFERENCE LAYER</span><h2>选中金属：<strong id="compare-metal">Fe</strong> · 键能并列</h2></div>
+          <span class="scl-reference-tag">S–Cl 参照不占二维坐标</span>
+        </div>
+        <div id="scl-bond-bars" class="scl-bond-bars" role="img" aria-label="所选金属 M–Cl、M–S 与气相 S–Cl 键解离焓的并列棒图"></div>
+        <p class="scl-small-note">S–Cl：SCl(g) → S(g) + Cl(g)，298 K 约 242.0 kJ mol⁻¹（JANAF/NIST，经生成焓推算，含较大不确定度）。M–Cl / M–S 沿用本站混合来源键能表；<b>同单位并列 ≠ 相同键解离定义、≠ 电极反应自由能</b>。</p>
+      </div>
     </div>
 
     <aside class="side-stack">
+      <section id="scl-enthalpy-card" class="card scl-enthalpy">
+        <div class="section-kicker"><span>S–Cl</span><div class="section-title">硫氯物种 · 形成焓对照</div></div>
+        <p class="scl-summary">298.15 K 标准生成焓 Δ<sub>f</sub>H°，注意与上方的键解离焓分属不同物理量。</p>
+        <label class="scl-phase-control" for="scl-phase">参照相态
+          <select id="scl-phase" aria-label="切换气相与液相标准生成焓"><option value="gas">气相 (g)</option><option value="liquid">液相 (l)</option></select>
+        </label>
+        <div id="scl-enthalpy-bars" class="scl-enthalpy-bars" role="img" aria-label="硫氯化合物标准生成焓对比"></div>
+        <p class="scl-small-note">S₂Cl₂：S 平均 +I；SCl₂：S +II；SCl₄：S +IV（形式价态）。SCl₄ 在室温不稳定，目前不绘制未经核实的标准生成焓。</p>
+        <div class="scl-source-links">
+          <a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C10545990&amp;Mask=3" target="_blank" rel="noopener noreferrer">SCl₂ · NIST ↗</a>
+          <a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C10025679&amp;Mask=3" target="_blank" rel="noopener noreferrer">S₂Cl₂ · NIST ↗</a>
+          <a href="../sulfur-chlorides/">完整热化学资料 ↗</a>
+        </div>
+      </section>
       <section class="card explainer">
         <div class="section-kicker"><span>02</span><div class="section-title">四个区域</div></div>
         <div class="region"><b>I</b><p>M–S 本身相对 M–Cl 更占优。</p></div>
@@ -52,7 +78,7 @@
       </section>
       <section class="card explainer">
         <div class="section-kicker"><span>03</span><div class="section-title">判读方式</div></div>
-        <p>圆点代表实验成对数据；菱形表示至少一个键能由 DFT 数据补齐。红色外圈标记已有 SCl₃⁺ 金属氯络盐报道的元素。</p>
+        <p>圆点代表实验成对数据；菱形表示至少一个键能由 DFT 数据补齐。红色外圈标记已有 SCl₃⁺ 金属氯络盐报道的元素。点击元素联动下方 S–Cl 对照；<b>S–Cl 不是具有 M–Cl 和 M–S 两个坐标的金属点</b>。</p>
         <a class="text-link" href="../metal-formation-energy/">用 Materials Project 形成能交叉验证 →</a>
       </section>
     </aside>
