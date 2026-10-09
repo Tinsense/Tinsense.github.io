@@ -7,21 +7,34 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const v = Math.max(0, Math.min(1, t));
     return v * v * (3 - 2 * v);
   };
-  function lensDisplacement(px, py, width, height, depth, strength, range, nx, ny) {
+  function lensDisplacement(px, py, width, height, depth, strength, range, nx, ny, radius = Math.min(width, height) * 0.25) {
     const half = Math.max(1, Math.min(width, height) * 0.5);
-    const envelope = 0.025 + 0.975 * Math.pow(1 - smooth(depth / half), 1.35);
-    const body = smooth((depth - range) / Math.max(half - range, 1));
-    const corner = 1 + 0.28 * 2 * Math.abs(nx * ny);
-    const gain = strength * envelope * corner;
-    return [gain * (nx + (2 * px / width - nx) * body) + 1.5, gain * (ny + (2 * py / height - ny) * body) - 1];
+    const bevel = Math.min(half, Math.max(range * 2.2, radius * 1.25));
+    const amplitude = Math.min(strength * 0.75, bevel * 0.25, radius * 0.4);
+    const softness = Math.max(2, radius * 0.35);
+    const wx = 1 / (1 + Math.exp(Math.max(-40, Math.min(40, (width * 0.5 - Math.abs(px) - (height * 0.5 - Math.abs(py))) / softness))));
+    const inner = smooth(depth / Math.max(radius, 1));
+    const sx = wx * Math.tanh(px / softness), sy = (1 - wx) * Math.tanh(py / softness);
+    const vx = nx + (sx - nx) * inner, vy = ny + (sy - ny) * inner;
+    const corner = 1 + 0.22 * 2 * Math.abs(nx * ny) * (1 - inner);
+    const rim = amplitude * Math.pow(1 - smooth(depth / bevel), 2) * corner;
+    const dome = 0.035 * Math.min(strength, half);
+    return [-rim * vx - dome * 2 * px / width + 1.5, -rim * vy - dome * 2 * py / height - 1];
   }
   const LENS_PROFILE_GLSL = `
-vec2 lensDisplacement(vec2 local, vec2 size, float depth, float strength, float range, vec2 normal) {
+vec2 lensDisplacement(vec2 local, vec2 size, float depth, float strength, float range, vec2 normal, float radius) {
   float halfSize = max(1.0, min(size.x,size.y)*0.5);
-  float envelope = 0.025 + 0.975*pow(1.0-smoothstep(0.0,halfSize,depth),1.35);
-  float body = smoothstep(0.0,max(halfSize-range,1.0),depth-range);
-  float corner = 1.0 + 0.28*2.0*abs(normal.x*normal.y);
-  return strength*envelope*corner*mix(normal,2.0*local/size,body)+vec2(1.5,-1.0);
+  float bevel = min(halfSize,max(range*2.2,radius*1.25));
+  float amplitude = min(strength*0.75,min(bevel*0.25,radius*0.40));
+  float softness = max(2.0,radius*0.35);
+  vec2 side = size*0.5-abs(local);
+  float wx = 1.0/(1.0+exp(clamp((side.x-side.y)/softness,-40.0,40.0)));
+  float inner = smoothstep(0.0,max(radius,1.0),depth);
+  vec2 innerNormal = vec2(wx,1.0-wx)*tanh(local/softness);
+  float corner = 1.0+0.22*2.0*abs(normal.x*normal.y)*(1.0-inner);
+  float rim = amplitude*pow(1.0-smoothstep(0.0,bevel,depth),2.0)*corner;
+  float dome = 0.035*min(strength,halfSize);
+  return -rim*mix(normal,innerNormal,inner)-dome*2.0*local/size+vec2(1.5,-1.0);
 }
 `;
   const NS = "http://www.w3.org/2000/svg";
@@ -71,7 +84,8 @@ vec2 lensDisplacement(vec2 local, vec2 size, float depth, float strength, float 
       const key = [width, height, radius, strength, range, blurRadius].map((v) => v.toFixed(1)).join(":");
       if (lens.key !== key) {
         lens.key = key;
-        const mapStrength = strength * 1.35 + 2;
+        const bevel = Math.min(Math.min(width, height) * 0.5, Math.max(range * 2.2, radius * 1.25));
+        const mapStrength = Math.min(strength * 0.75, bevel * 0.25, radius * 0.4) * 1.22 + 0.035 * strength + 2;
         const pad = Math.ceil(mapStrength + blurRadius * 3 + 2), mapWidth = width + pad * 2, mapHeight = height + pad * 2;
         for (const node of [lens.filter, lens.image]) {
           node.setAttribute("x", String(-pad));
@@ -80,7 +94,7 @@ vec2 lensDisplacement(vec2 local, vec2 size, float depth, float strength, float 
           node.setAttribute("height", String(mapHeight));
         }
         lens.filter.querySelector("feDisplacementMap").setAttribute("scale", String(mapStrength * 2));
-        const scale = Math.min(1, 512 / mapWidth, 2048 / mapHeight), w = Math.max(1, Math.ceil(mapWidth * scale)), h = Math.max(1, Math.ceil(mapHeight * scale));
+        const scale = Math.min(1, 1024 / mapWidth, 2048 / mapHeight), w = Math.max(1, Math.ceil(mapWidth * scale)), h = Math.max(1, Math.ceil(mapHeight * scale));
         const map = document.createElement("canvas");
         map.width = w;
         map.height = h;
@@ -98,7 +112,7 @@ vec2 lensDisplacement(vec2 local, vec2 size, float depth, float strength, float 
           let nx = length ? ox / length : qx > qy ? 1 : 0, ny = length ? oy / length : qy >= qx ? 1 : 0;
           nx *= Math.sign(px);
           ny *= Math.sign(py);
-          const [displacementX, displacementY] = lensDisplacement(px, py, width, height, depth, strength, range, nx, ny);
+          const [displacementX, displacementY] = lensDisplacement(px, py, width, height, depth, strength, range, nx, ny, radius);
           const offset = (y * w + x) * 4;
           pixels.data[offset] = Math.round(127.5 + 127.5 * displacementX / mapStrength);
           pixels.data[offset + 1] = Math.round(127.5 + 127.5 * displacementY / mapStrength);
@@ -108,7 +122,7 @@ vec2 lensDisplacement(vec2 local, vec2 size, float depth, float strength, float 
           const far = Math.pow(Math.max(0, (nx + ny) / Math.SQRT2), 8) * 0.13;
           const edge = Math.max(0, 1 - depth / 1.6), coverage = Math.max(0, Math.min(1, 0.5 - distance));
           lights.data[offset] = lights.data[offset + 1] = lights.data[offset + 2] = 255;
-          lights.data[offset + 3] = Math.round(255 * coverage * (0.018 * Math.pow(edge, 2) + 0.16 * (diagonal + far) * edge));
+          lights.data[offset + 3] = Math.round(255 * coverage * (0.025 * Math.pow(edge, 2) + 0.24 * (diagonal + far) * edge));
         }
         ctx.putImageData(pixels, 0, 0);
         lens.image.setAttribute("href", map.toDataURL());
@@ -268,7 +282,7 @@ vec4 bentTexel(vec2 point, vec2 uv, vec4 rect, float radius, vec4 optics) {
   normal *= sign(local);
   float depth = max(-roundedRectSDF(local,rect.zw*0.5,radius),0.0);
   vec2 pxToUV = vec2(1.0,-1.0)/max(u_viewport,vec2(1.0));
-  vec2 offset = lensDisplacement(local,rect.zw,depth,optics.x,optics.y,normal)*pxToUV;
+  vec2 offset = lensDisplacement(local,rect.zw,depth,optics.x,optics.y,normal,radius)*pxToUV;
   float shoulder = pow(1.0-smoothstep(0.0,max(optics.y,2.0),depth),0.88);
   vec2 dispersion = normal*min(0.95,optics.x*0.065)*shoulder*pxToUV;
   vec4 r = textureLod(u_background,clamp(uv+offset*1.035+dispersion,vec2(0.001),vec2(0.999)),0.0);
@@ -491,7 +505,7 @@ void main() {
       __publicField(this, "layers", /* @__PURE__ */ new Map());
       const canvas = document.createElement("canvas");
       canvas.className = "studio-glass-shared-canvas";
-      canvas.dataset.opticsVersion = "crystal-glass-16";
+      canvas.dataset.opticsVersion = "crystal-glass-17";
       canvas.dataset.presentation = this.native ? "native-backdrop" : "element-attached";
       canvas.setAttribute("aria-hidden", "true");
       document.body.appendChild(canvas);
