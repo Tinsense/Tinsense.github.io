@@ -41,3 +41,13 @@
 .scl-source-links a:hover{background:var(--surface-hover)}
 [hidden]{display:none!important}
 @media(max-width:600px){.scl-compare{padding:14px}.scl-bar-row{grid-template-columns:60px minmax(0,1fr) 83px;gap:6px;font-size:.72rem}.scl-reference-tag{font-size:.63rem}}
+
+/* Nonmetal data points are rendered on the actual XY plot, not only in cards. */
+.scl-plot-legend{display:flex;align-items:center;justify-content:flex-start;gap:14px;flex-wrap:wrap;padding:13px 8px 2px;color:var(--text-secondary);font-size:.74rem;line-height:1.65}
+.scl-plot-legend>span{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.scl-plot-legend a{color:var(--accent);text-decoration:none;text-underline-offset:3px;font-size:.72rem}
+.scl-plot-legend a:hover{text-decoration:underline}
+.scl-legend-dot{display:inline-block;width:12px;height:12px;border:1px solid #171717;outline:2px solid currentColor;border-radius:3px;transform:rotate(30deg);margin:0 3px}
+.scl-legend-dot.sulfur{background:#ffda7b;color:#ffda7b}
+.scl-legend-dot.chlorine{background:#ff93bc;color:#ff93bc}
+@media(max-width:650px){.scl-plot-legend{gap:8px;font-size:.7rem}.scl-plot-legend>span{white-space:normal}}
