@@ -13,24 +13,33 @@ function ztxt(d){const z=zone(d);return z===1?'Region I：M–S 优势':z===2?'R
 function mixed(d){return d.clSrc==='dft'||d.sSrc==='dft'}
 function fmt(v){return (Math.round(v*10)/10).toFixed(1)}
 
-/* A parallel measurement strip, not a point in the M–Cl/M–S coordinate space. */
-const SCL_BDE_298=242.01;
+/* Homolytic average single-bond enthalpies (298.15 K), IB Chemistry Data Booklet 2025.
+ * Reference nonmetal points are plotted on the same axes, but DO NOT receive
+ * metal-exchange descriptors, quadrant interpretations, or DFT/experimental markers.
+ * SCl(g) radical bond dissociation enthalpy (~242 kJ/mol from JANAF) is a
+ * molecule-specific quantity; NOT the same as the average S–Cl value below.
+ */
+const SCL_BDE_298=271;
+const NONMETAL_POINTS=[
+  {m:'S',cl:271,s:266,xBond:'S–Cl',yBond:'S–S',color:'#ffda7b',kind:'nonmetal'},
+  {m:'Cl',cl:242,s:271,xBond:'Cl–Cl',yBond:'Cl–S',color:'#ff93bc',kind:'nonmetal'}
+];
 const SCL_FORMATION_298=[
   {name:'S₂Cl₂',oxi:'+I',gas:-16.74,liquid:-58.16},
   {name:'SCl₂',oxi:'+II',gas:-17.57,liquid:-49.79},
   {name:'SCl₄',oxi:'+IV',gas:null,liquid:null}
 ];
 function renderSclBond(){
-  const d=data.find(x=>x.m===selected)||data.find(x=>x.m==='Fe')||data[0];
+  const d=NONMETAL_POINTS.find(x=>x.m===selected)||data.find(x=>x.m===selected)||data.find(x=>x.m==='Fe')||data[0];
   const title=document.getElementById('compare-metal');
   const target=document.getElementById('scl-bond-bars');
   if(!d||!title||!target)return;
   title.textContent=d.m;
   const bars=[
-    {name:d.m+'–Cl',value:d.cl,cls:'cl'},
-    {name:d.m+'–S',value:d.s,cls:'s'},
-    {name:'S–Cl*',value:SCL_BDE_298,cls:'scl'}
+    {name:d.kind==='nonmetal'?d.xBond:d.m+'–Cl',value:d.cl,cls:'cl'},
+    {name:d.kind==='nonmetal'?d.yBond:d.m+'–S',value:d.s,cls:'s'}
   ];
+  if(d.kind!=='nonmetal')bars.push({name:'S–Cl¹',value:SCL_BDE_298,cls:'scl'});
   const extent=Math.max(500,...bars.map(x=>x.value));
   target.innerHTML=bars.map(b=>
     '<div class="scl-bar-row"><span class="scl-bar-label">'+b.name+'</span>'+
@@ -38,7 +47,7 @@ function renderSclBond(){
     (b.value/extent*100).toFixed(2)+'%"></div></div><span class="scl-bar-value">'+
     fmt(b.value)+' kJ/mol</span></div>'
   ).join('');
-  target.setAttribute('aria-label',d.m+'–Cl '+fmt(d.cl)+'，'+d.m+'–S '+fmt(d.s)+'，S–Cl 242.0 kJ/mol，三项仅供并列参考');
+  target.setAttribute('aria-label',(d.kind==='nonmetal'?d.xBond:d.m+'–Cl')+' '+fmt(d.cl)+'，'+(d.kind==='nonmetal'?d.yBond:d.m+'–S')+' '+fmt(d.s)+(d.kind==='nonmetal'?'': '，S–Cl 平均键焓 271.0 kJ/mol'));
 }
 function renderSclEnthalpy(){
   const select=document.getElementById('scl-phase'),target=document.getElementById('scl-enthalpy-bars');
@@ -60,6 +69,60 @@ function syncSclVisibility(){
   const checked=document.getElementById('scl-toggle').checked;
   document.getElementById('scl-compare').hidden=!checked;
   document.getElementById('scl-enthalpy-card').hidden=!checked;
+  document.getElementById('scl-plot-legend').hidden=!checked;
+  if(!checked && NONMETAL_POINTS.some(d=>d.m===selected))selected='Fe';
+  render();
+}
+
+
+function renderNonmetalPoints(X,Y,axis,panel){
+  const note=document.getElementById('scl-toggle');
+  if(!note||!note.checked)return;
+  const colors={S:'#ffda7b',Cl:'#ff93bc'};
+  NONMETAL_POINTS.forEach((d)=>{
+    const cx=X(d.cl),cy=Y(d.s),color=colors[d.m];
+    const g=E('g',{role:'button',tabindex:0,'aria-label':d.m+'：'+d.xBond+' = '+d.cl+'，'+d.yBond+' = '+d.s+' 千焦每摩尔'});
+    g.style.cursor='pointer';
+    const labelX=d.m==='S'?cx+23:cx-109;
+    const labelY=d.m==='S'?cy-48:cy+20;
+    const connectorEndX=d.m==='S'?cx+26:cx-10;
+    const connectorEndY=d.m==='S'?cy-13:cy+24;
+    g.appendChild(E('line',{x1:cx,y1:cy,x2:connectorEndX,y2:connectorEndY,stroke:color,'stroke-width':1.5,'stroke-dasharray':'3 2',opacity:.95}));
+    g.appendChild(E('rect',{x:labelX,y:labelY,width:86,height:37,rx:8,ry:8,
+      fill:panel,stroke:color,'stroke-width':1.3}));
+    const symbol=E('text',{x:labelX+9,y:labelY+15,fill:color,'font-weight':800,'font-size':13});symbol.textContent=d.m;g.appendChild(symbol);
+    const coords=E('text',{x:labelX+9,y:labelY+29,fill:axis,'font-size':10.5,'font-weight':600});
+    coords.textContent=d.cl+', '+d.s;g.appendChild(coords);
+    const focus=selected===d.m;
+    g.appendChild(E('circle',{cx,cy,r:focus?16:14,fill:'none',stroke:color,'stroke-width':focus?3:2,opacity:.85}));
+    const hexPoints=Array.from({length:6},(_,i)=>{
+      const a=Math.PI/3*i+Math.PI/6;
+      return (cx+10*Math.cos(a)).toFixed(1)+','+(cy+10*Math.sin(a)).toFixed(1);
+    }).join(' ');
+    g.appendChild(E('polygon',{points:hexPoints,fill:color,stroke:'#15181d','stroke-width':1.7}));
+    const letter=E('text',{x:cx,y:cy+4,'text-anchor':'middle','font-size':10,'font-weight':800,fill:'#171717'});
+    letter.textContent=d.m;g.appendChild(letter);
+    // Larger invisible hit area for keyboard/touch and reliable SVG pointer targeting.
+    g.appendChild(E('circle',{cx,cy,r:18,fill:'transparent',stroke:'none'}));
+    const show=()=>{
+      selected=d.m;renderSclBond();
+      tip.innerHTML='<b style="color:'+color+'">'+d.m+' · 非金属参照点</b>'+
+        '<br>X '+d.xBond+': <b>'+fmt(d.cl)+'</b> kJ mol⁻¹'+
+        '<br>Y '+d.yBond+': <b>'+fmt(d.s)+'</b> kJ mol⁻¹'+
+        '<br>298 K 平均单键焓 · IB Chemistry Data Booklet'+
+        '<br><span style="color:#cdd7e0">不是金属置换反应的 Region I–IV 判据</span>';
+      const parent=svg.parentElement.getBoundingClientRect();
+      const box=svg.getBoundingClientRect();
+      tip.style.left=Math.min(parent.width-260,Math.max(6,(cx/720)*box.width+16))+'px';
+      tip.style.top=Math.max(8,(cy/720)*box.height-112)+'px';
+      tip.style.display='block';
+    };
+    g.addEventListener('pointerenter',show);
+    g.addEventListener('pointerleave',()=>{tip.style.display='none'});
+    g.addEventListener('click',()=>{selected=d.m;render();tip.style.display='none'});
+    g.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selected=d.m;render();}});
+    svg.appendChild(g);
+  });
 }
 
 function render(){
@@ -101,6 +164,7 @@ function render(){
     svg.appendChild(mark);
     const lab=E('text',{x:cx+7,y:cy+(i%2?-7:11),'font-size':9.3,fill:axis,'font-weight':selected===d.m?700:500});lab.textContent=d.m;lab.style.pointerEvents='none';svg.appendChild(lab);
   });
+  renderNonmetalPoints(X,Y,axis,panel);
   renderSclBond();
   renderSclEnthalpy();
 }
