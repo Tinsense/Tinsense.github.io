@@ -4,7 +4,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
 (function() {
   "use strict";
   const NS = "http://www.w3.org/2000/svg";
-  const FULL_LENS_SELECTOR = ".liquid-button,.top-action,.brand,.chapter-title,.chapter-menu-trigger,.mobile-rail-toggle,.header-center,.header-link,.tool-strip a,.segmented,.derivation-controls";
   const svgNode = (name, attrs = {}) => {
     const node = document.createElementNS(NS, name);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
@@ -23,8 +22,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       document.body.append(this.svg);
     }
     update(element, width, height, radius, strength, range, filter) {
-      const fullLens = element.matches(FULL_LENS_SELECTOR);
-      element.dataset.lensCoverage = fullLens ? "full" : "shoulder";
+      element.dataset.lensCoverage = "full";
       let lens = this.lenses.get(element);
       if (!lens) {
         const id = `studio-native-lens-${++this.sequence}`;
@@ -44,7 +42,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         element.dataset.refractionSource = "dom-backdrop";
         element.style.setProperty("--glass-native-lens", `url("#${id}")`);
       }
-      const key = [width, height, radius, strength, range, Number(fullLens)].map((v) => v.toFixed(1)).join(":");
+      const key = [width, height, radius, strength, range].map((v) => v.toFixed(1)).join(":");
       if (lens.key !== key) {
         lens.key = key;
         lens.filter.setAttribute("width", String(width));
@@ -70,8 +68,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           nx *= Math.sign(px);
           ny *= Math.sign(py);
           const t = Math.min(1, depth / range), bend = Math.pow(1 - t * t * (3 - 2 * t), 0.88);
-          const bodyX = fullLens ? Math.max(-24, Math.min(24, -px * 0.35)) + 2 : 0;
-          const bodyY = fullLens ? Math.max(-15, Math.min(15, -py * 0.4)) - 1.5 : 0;
+          const bodyX = strength * (-0.64 * Math.sin(Math.PI * px / width) + 0.18 * Math.sin(2 * Math.PI * py / height)) + 2;
+          const bodyY = strength * (-0.64 * Math.sin(Math.PI * py / height) + 0.12 * Math.sin(2 * Math.PI * px / width)) - 1.5;
           const displacementX = nx * strength * bend + bodyX * (1 - bend);
           const displacementY = ny * strength * bend + bodyY * (1 - bend);
           const offset = (y * w + x) * 4;
@@ -267,9 +265,7 @@ void main() {
   vec3 frost = u_frost[chosen];
   float surfaceFlag = u_flags[chosen];
   float depth = max(-chosenDistance, 0.0);
-  // Keep the whole reading area untouched, not just almost transparent.
-  bool fullLens = surfaceFlag == 3.0;
-  if (!fullLens && depth > optics.y) { fragColor = vec4(0.0); return; }
+  // All optical surfaces bend their backdrop, never foreground copy.
 
   /* SDF normal. */
   float eps = 0.8;
@@ -307,8 +303,7 @@ void main() {
   float glare = (diagonalGlint + farGlint) * (0.86 + 0.14 * pointerGlint);
   glare *= (1.0 - smoothstep(0.0, max(optics.w, 0.25), depth)) * opticalEdgeMask;
 
-  /* The same frost across the curved shoulder, with continuous displacement
-     falloff into the undistorted native material. */
+  /* The shoulder smoothly joins the full-area lens field. */
   float refractField = 1.0 - smoothstep(0.0, max(optics.y, 2.0), depth);
   refractField = pow(refractField, 0.88) * opticalEdgeMask;
 
@@ -317,10 +312,10 @@ void main() {
      Use the same conversion for bend, dispersion and the scatter aperture. */
   vec2 pxToUV = vec2(1.0 / max(u_viewport.x, 1.0), -1.0 / max(u_viewport.y, 1.0));
   vec2 refractionUV = bendDir * refractionPx * pxToUV;
-  if (fullLens) {
-    vec2 body = clamp(-(cssPoint - center) * vec2(0.35, 0.40), vec2(-24.0,-15.0), vec2(24.0,15.0)) + vec2(2.0,-1.5);
-    refractionUV = mix(body * pxToUV, refractionUV, refractField);
-  }
+  vec2 local = (cssPoint - center) / rect.zw;
+  vec2 body = optics.x * vec2(-0.64*sin(PI*local.x)+0.18*sin(2.0*PI*local.y),
+                            -0.64*sin(PI*local.y)+0.12*sin(2.0*PI*local.x)) + vec2(2.0,-1.5);
+  refractionUV = mix(body * pxToUV, refractionUV, refractField);
 
   /*
    * Canvas texture is uploaded with UNPACK_FLIP_Y_WEBGL=true,
@@ -370,18 +365,8 @@ void main() {
    * contribute ZERO refracted alpha. Previously only RGB was alpha-gated, so
    * transparent black pixels still produced a broad grey/black optical band.
    */
-  /* Flat areas remain almost invisible; an actual displaced line or colour
-     patch produces the stronger optical response. */
-  float displacedDetail = smoothstep(0.006, 0.055, length(refracted - environment));
-  /* A strong sampled lens when a real line moves; nearly absent over a flat
-     scene. Constant high alpha overlaid raw wallpaper on the DOM material
-     and caused a dark inset outline around controls. */
-  float coverageField = fullLens ? 1.0 : refractField;
-  float response = fullLens ? 0.92 : mix(0.12, 0.92, displacedDetail);
-  float refractedAlpha = min(0.92, u_hasBackground * coverageField * sampledAlpha * response);
-
-  vec3 cool = vec3(0.42, 0.69, 1.00);
-  vec3 warm = vec3(1.00, 0.80, 0.48);
+  /* A local sampled surface, with no edge/body opacity discontinuity. */
+  float refractedAlpha = min(0.92, u_hasBackground * sampledAlpha * 0.92);
   /* The thin reflection follows local environment luminance and surface
      orientation. No painted white side stripe or coloured outline. */
   float environmentLuma = dot(environment, vec3(0.2126, 0.7152, 0.0722));
@@ -468,7 +453,7 @@ void main() {
       __publicField(this, "layers", /* @__PURE__ */ new Map());
       const canvas = document.createElement("canvas");
       canvas.className = "studio-glass-shared-canvas";
-      canvas.dataset.opticsVersion = "crystal-glass-14";
+      canvas.dataset.opticsVersion = "crystal-glass-15";
       canvas.dataset.presentation = this.native ? "native-backdrop" : "element-attached";
       canvas.setAttribute("aria-hidden", "true");
       document.body.appendChild(canvas);
@@ -567,13 +552,13 @@ void main() {
           return Number.parseFloat(value) / (value.includes("%") ? 100 : 1);
         };
         frostData.set([filterValue("blur", 0), filterValue("saturate", 1), filterValue("brightness", 1)], index * 3);
-        let refractionPx = window.innerWidth <= 700 ? 20 : 26;
-        let refractionRange = window.innerWidth <= 700 ? 16 : 22;
+        let refractionPx = window.innerWidth <= 700 ? 36 : 48;
+        let refractionRange = window.innerWidth <= 700 ? 28 : 38;
         let fresnelRange = 1.4;
         let glareRange = 1;
         if (element.matches(".site-header, .header-wrapper, .chapter-rail")) {
-          refractionPx = 18;
-          refractionRange = 14;
+          refractionPx = 32;
+          refractionRange = 28;
           fresnelRange = 1.1;
           glareRange = 1.15;
         } else if (element.matches(".rail-item, .top-action, .liquid-button, .text-button, .segmented, .derivation-controls, .brand, .chapter-title, .chapter-menu-trigger, .mobile-rail-toggle, .header-center, .header-link, .tool-strip a")) {
