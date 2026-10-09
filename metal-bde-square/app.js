@@ -94,8 +94,11 @@ function render(){
     if(mixed(d)) mark=E('rect',{x:cx-5,y:cy-5,width:10,height:10,fill:panel,stroke:c,'stroke-width':selected===d.m?2.8:1.7,transform:`rotate(45 ${cx} ${cy})`});
     else mark=E('circle',{cx,cy,r:selected===d.m?6.8:5,fill:c,stroke:selected===d.m?axis:panel,'stroke-width':selected===d.m?2.4:1});
     mark.style.cursor='pointer';
-    const show=()=>{selected=d.m;render();const reportedHtml=reported?`<br><span style="color:#fb7185;font-weight:700">✓ 已报道 SCl₃⁺ 络盐</span><br>${reported.join('<br>')}`:'';tip.innerHTML=`<b>${d.m}</b><br>M–Cl: ${fmt(d.cl)}<br>M–S: ${fmt(d.s)}<br>Δ: ${d.delta>=0?'+':''}${fmt(d.delta)}<br>S<sub>Li</sub>: ${d.liScore>=0?'+':''}${fmt(d.liScore)}<br>S<sub>Na</sub>: ${d.naScore>=0?'+':''}${fmt(d.naScore)}<br>${ztxt(d)}${reportedHtml}`;tip.style.display='block'};
-    mark.addEventListener('click',show);mark.addEventListener('pointerenter',show);svg.appendChild(mark);
+    const show=()=>{selected=d.m;renderSclBond();const reportedHtml=reported?`<br><span style="color:#fb7185;font-weight:700">✓ 已报道 SCl₃⁺ 络盐</span><br>${reported.join('<br>')}`:'';tip.innerHTML=`<b>${d.m}</b><br>M–Cl: ${fmt(d.cl)}<br>M–S: ${fmt(d.s)}<br>Δ: ${d.delta>=0?'+':''}${fmt(d.delta)}<br>S<sub>Li</sub>: ${d.liScore>=0?'+':''}${fmt(d.liScore)}<br>S<sub>Na</sub>: ${d.naScore>=0?'+':''}${fmt(d.naScore)}<br>${ztxt(d)}${reportedHtml}`;tip.style.display='block'};
+    mark.addEventListener('click',()=>{selected=d.m;render();tip.style.display='none'});
+    mark.addEventListener('pointerenter',show);
+    mark.addEventListener('pointerleave',()=>{tip.style.display='none'});
+    svg.appendChild(mark);
     const lab=E('text',{x:cx+7,y:cy+(i%2?-7:11),'font-size':9.3,fill:axis,'font-weight':selected===d.m?700:500});lab.textContent=d.m;lab.style.pointerEvents='none';svg.appendChild(lab);
   });
   renderSclBond();
