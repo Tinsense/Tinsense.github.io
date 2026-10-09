@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="S–Cl 键解离焓与 SCl2、S2Cl2、SCl4 的标准生成焓、相态和来源，供 Na–Fe–Cl–S 电池机制研究参考。">
+  <title>S–Cl 硫氯化学热力学 · 晶格</title>
+  <link rel="stylesheet" href="../css/research-shell.css">
+  <style>
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:8px 0 20px}
+    .kpi{border:1px solid var(--glass-border);background:var(--glass-fill);border-radius:20px;padding:23px 20px;min-width:0}
+    .kpi .kind{font-size:.67rem;letter-spacing:.08em;color:var(--text-tertiary);font-weight:700}
+    .kpi .number{font-size:clamp(1.7rem,2.8vw,2.55rem);font-weight:620;letter-spacing:-.045em;margin:13px 0 4px;font-variant-numeric:tabular-nums}
+    .kpi .unit{font-size:.74rem;color:var(--text-secondary)}.kpi .foot{font-size:.7rem;line-height:1.6;margin-top:12px;color:var(--text-tertiary)}
+    .grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(270px,.7fr);gap:16px;margin:16px 0}
+    .block{margin:16px 0}.block h2{margin:0 0 12px;font-size:1.12rem}.block p{line-height:1.75;color:var(--text-secondary)}
+    .ctrl{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:12px;margin:8px 0 18px}
+    .ctrl label{font-size:.82rem;color:var(--text-secondary);display:flex;align-items:center;gap:12px}
+    .table-clip{max-width:100%;overflow:auto;border-radius:15px}
+    table{width:100%;border-collapse:collapse;min-width:690px;font-size:.85rem}
+    td,th{text-align:left;padding:15px 13px;border-bottom:1px solid var(--hairline)}
+    th{font-size:.69rem;font-weight:600;letter-spacing:.035em}
+    td.value{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+    .formula{font-size:1.06rem;font-weight:650}.muted{color:var(--text-tertiary)}.status{font-size:.69rem;border:1px solid var(--hairline);border-radius:20px;padding:4px 9px;white-space:nowrap}
+    .note{font-size:.78rem;color:var(--text-tertiary);line-height:1.7;margin:12px 0 0}
+    .eq{display:block;padding:17px 18px;margin:14px 0;border:1px solid var(--hairline);border-radius:15px;background:var(--surface);font-size:1.05rem;line-height:1.8;overflow-wrap:anywhere}
+    .eq strong{font-variant-numeric:tabular-nums;color:var(--text)}
+    .detail-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .chip{font-size:.76rem;padding:8px 11px;border:1px solid var(--hairline);border-radius:999px;color:var(--text-secondary)}
+    .warning{border-left:3px solid #d09d54;padding:8px 0 8px 15px;margin:14px 0;color:var(--text-secondary);font-size:.86rem;line-height:1.75}
+    .sources{margin:8px 0 0;padding-left:22px;color:var(--text-secondary);font-size:.81rem;line-height:1.85}
+    .sources a{color:var(--accent);text-underline-offset:3px}
+    .state-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .state{border:1px solid var(--hairline);border-radius:17px;padding:18px;background:var(--surface)}
+    .state .name{font-size:1.3rem;font-weight:650;letter-spacing:-.02em}
+    .state .scheme{padding:20px 0;font-size:1rem;color:var(--text-secondary);font-weight:560;text-align:center}
+    .state .desc{color:var(--text-tertiary);font-size:.77rem;line-height:1.7}
+    .footnote{font-size:.79rem;line-height:1.75;color:var(--text-secondary);margin-top:12px}
+    .science-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
+    .science-links a{border:1px solid var(--hairline);border-radius:12px;padding:10px 14px;font-size:.79rem;text-decoration:none}
+    .science-links a:hover{background:var(--surface-hover)}
+    @media(max-width:1000px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}}
+    @media(max-width:650px){.state-grid{grid-template-columns:1fr}.kpis{gap:8px}.kpi{padding:17px 13px}.kpi .number{font-size:1.8rem}.ctrl{align-items:flex-start}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="../"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><strong>晶格</strong><small>MATERIALS LEARNING STUDIO</small></span></a>
+  <div class="header-center"><span>THERMOCHEMISTRY · 04</span><p>S–Cl bonding &amp; sulfur<br>chloride energetics</p></div>
+  <div class="header-actions"><a class="header-link" href="../metal-bde/">金属键能</a><a class="header-link" href="../metal-formation-energy/">形成能图</a><button class="top-action" id="theme-toggle" type="button" aria-label="切换明暗主题"><svg class="icon" id="theme-icon" viewBox="0 0 24 24" aria-hidden="true"></svg></button></div>
+</header>
+<main class="research-page">
+  <section class="page-hero">
+    <div><div class="eyebrow">NIST WEBBOOK · JANAF · VERIFIED THERMOCHEMISTRY</div><h1>S–Cl 硫氯化学热力学</h1><p>区分<strong>双原子 S–Cl 键解离焓</strong>与<strong>标准生成焓</strong>，对比 SCl₂、S₂Cl₂ 和 SCl₄，辅助 Na–Fe–Cl–S (NFSC) 高压硫氧化反应机理分析。数据基准：298.15 K、标准压力 1 bar。</p></div>
+    <div class="hero-actions"><a class="liquid-button primary" href="#data">查看形成焓</a><a class="liquid-button" href="../">返回主页</a></div>
+  </section>
+  <section class="kpis" aria-label="关键热力学数据">
+    <div class="kpi"><div class="kind">S–Cl · GAS-PHASE BDE</div><div class="number">242.0</div><div class="unit">kJ mol⁻¹ · ≈2.51 eV / bond</div><div class="foot">SCl(g) → S(g) + Cl(g)，按标准生成焓推导</div></div>
+    <div class="kpi"><div class="kind">SCl₂(g) · ΔfH°</div><div class="number">−17.57</div><div class="unit">kJ mol⁻¹</div><div class="foot">NIST–JANAF · 298.15 K</div></div>
+    <div class="kpi"><div class="kind">S₂Cl₂(g) · ΔfH°</div><div class="number">−16.74</div><div class="unit">kJ mol⁻¹</div><div class="foot">NIST–JANAF · 298.15 K</div></div>
+    <div class="kpi"><div class="kind">SCl₄ · ΔfH°</div><div class="number">未核实</div><div class="unit">不提供推测值</div><div class="foot">低温不稳定物种；需先明确相态与参考结构</div></div>
+  </section>
+  <section id="data" class="card block">
+    <div class="section-kicker"><span>01</span><div class="section-title">硫氯物种的标准生成焓（Standard enthalpy of formation）</div></div>
+    <div class="ctrl"><p class="note" style="margin:0">同一物种的气相和液相<strong>不可混用</strong>。此处为实测/评审热化学数据，并非 Materials Project DFT 形成能。</p><label for="unit">显示单位 <select id="unit" aria-label="生成焓单位"><option value="kj">kJ/mol</option><option value="evfu">eV / formula unit</option><option value="evatom">eV / atom</option></select></label></div>
+    <div class="table-clip">
+      <table>
+        <thead><tr><th>物种</th><th>正式氧化态（S）</th><th>ΔfH°(g)</th><th>ΔfH°(l)</th><th>数据状态</th><th>来源</th></tr></thead>
+        <tbody id="thermo-rows">
+          <tr><td><span class="formula">SCl₂</span></td><td>+II</td><td class="value">−17.57 kJ/mol</td><td class="value">−49.79 kJ/mol</td><td>经评审</td><td>NIST</td></tr>
+          <tr><td><span class="formula">S₂Cl₂</span></td><td>+I（平均）</td><td class="value">−16.74 kJ/mol</td><td class="value">−58.16 kJ/mol</td><td>经评审</td><td>NIST</td></tr>
+          <tr><td><span class="formula">SCl₄</span></td><td>+IV</td><td>—</td><td>—</td><td>缺少可核实值</td><td>文献稳定性说明</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">eV/formula unit 与 eV/atom 均仅由标准生成焓作单位换算：1 eV/粒子 = 96.485 kJ/mol；不是额外的第一性原理计算。元素参考态为标准状态下 S（正交晶硫）和 Cl₂(g)。</p>
+  </section>
+  <div class="grid">
+    <section class="card block">
+      <div class="section-kicker"><span>02</span><div class="section-title">S–Cl 键能：参考态与推导</div></div>
+      <p>双原子气相分子 SCl 的 298.15 K 键解离反应为：</p>
+      <div class="eq">SCl(g) → S(g) + Cl(g)<br><strong>ΔH° = 277.17 + 121.301 − 156.46 = 242.01 kJ/mol</strong></div>
+      <p>数据分别来自 S(g)、Cl(g) 的 CODATA 标准生成焓，以及 SCl(g) 的 NIST/JANAF 标准生成焓。由于此处使用 298.15 K 热力学数据，严格说是<strong>298 K 键解离焓</strong>，并非 0 K 的 D₀。</p>
+      <div class="detail-row"><span class="chip">S(g): +277.17 kJ/mol</span><span class="chip">Cl(g): +121.301 kJ/mol</span><span class="chip">SCl(g): +156.46 kJ/mol</span></div>
+      <div class="warning">不能把 242.0 kJ/mol 直接视作 SCl₂、S₂Cl₂、SCl₄ 中任意一根 S–Cl 键的解离能；键的强度取决于价态、分子结构、断裂方式及相态。</div>
+    </section>
+    <aside class="card block">
+      <div class="section-kicker"><span>03</span><div class="section-title">SCl₄：为什么暂不填写形成焓</div></div>
+      <p>经检索，没有找到可核实的、与上表相同基准的 SCl₄ 标准生成焓数据。</p>
+      <div class="eq">SCl₄ ⇌ SCl₂ + Cl₂</div>
+      <p>已发表的结构与反应研究指出：SCl₄ 在约 −78 °C 可由 SCl₂ 与 Cl₂ 反应制得；低于约 −30 °C 的固相被报道为 <strong>[SCl₃]⁺[Cl]⁻</strong> 型，高于其熔化/分解温度会回到 SCl₂ 与 Cl₂。</p>
+      <p>因此，SCl₄(g)、分子态 SCl₄ 和低温离子固相<strong>不应共用一个未经定义的“形成能”</strong>。未来若有量化计算或可靠热化学数据，可按具体参考态补充。</p>
+      <a href="https://doi.org/10.1002/anie.202209684" target="_blank" rel="noopener noreferrer" style="color:var(--accent);font-size:.81rem">结构与稳定性文献 ↗</a>
+    </aside>
+  </div>
+  <section class="card block">
+    <div class="section-kicker"><span>04</span><div class="section-title">分子结构与名义氧化态</div></div>
+    <div class="state-grid">
+      <article class="state"><div class="name">S₂Cl₂</div><div class="scheme">Cl—S—S—Cl</div><div class="desc">平均 S(+I)，分子含 S–S 键；不能用孤立 S–Cl 键能代表整个分子的稳定性。</div></article>
+      <article class="state"><div class="name">SCl₂</div><div class="scheme">Cl—S—Cl</div><div class="desc">S(+II)，分子为弯曲型；可与 S₂Cl₂/Cl₂ 化学环境发生转化。</div></article>
+      <article class="state"><div class="name">SCl₄</div><div class="scheme">[SCl₃]⁺ · [Cl]⁻</div><div class="desc">形式 S(+IV)；给出的是已报道低温固相的离子性描述，而非室温稳定游离 SCl₄ 分子。</div></article>
+    </div>
+    <p class="footnote"><strong>与 NFSC 的关系：</strong>上述物种可作为高压氧化机制的<strong>候选结构模型</strong>，但热化学生成焓或形式氧化态本身不能证明电极内部存在 S–Cl 键或某种具体硫氯化合物。需要联用 S K-edge XANES、Cl K-edge/XPS、Raman，以及充放电终态的结构表征验证。</p>
+    <div class="science-links"><a href="../metal-bde/">查看 M–S / M–Cl 键能工具 ↗</a><a href="../metal-formation-energy/">查看 MP 稳定相形成能图 ↗</a></div>
+  </section>
+  <section class="card block" id="references">
+    <div class="section-kicker"><span>05</span><div class="section-title">原始出处与数据定义</div></div>
+    <ol class="sources">
+      <li><a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C10545990&amp;Mask=3" target="_blank" rel="noopener noreferrer">NIST Chemistry WebBook — SCl₂, CAS 10545-99-0</a>：ΔfH°(g) = −17.57；ΔfH°(l) = −49.79 kJ/mol。</li>
+      <li><a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C10025679&amp;Mask=3" target="_blank" rel="noopener noreferrer">NIST Chemistry WebBook — S₂Cl₂, CAS 10025-67-9</a>：ΔfH°(g) = −16.74；ΔfH°(l) = −58.16 kJ/mol。</li>
+      <li><a href="https://cccbdb.nist.gov/exp2x.asp?casno=14989323&amp;charge=0" target="_blank" rel="noopener noreferrer">NIST CCCBDB — SCl radical</a>：ΔfH°(g, 298 K) = +156.46 kJ/mol（JANAF）。</li>
+      <li><a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C7704349&amp;Mask=1" target="_blank" rel="noopener noreferrer">NIST WebBook — atomic sulfur</a>：ΔfH°(g) = +277.17 kJ/mol（CODATA）。</li>
+      <li><a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C22537151&amp;Mask=1" target="_blank" rel="noopener noreferrer">NIST WebBook — atomic chlorine</a>：ΔfH°(g) = +121.301 kJ/mol（CODATA）。</li>
+      <li><a href="https://doi.org/10.1002/anie.202209684" target="_blank" rel="noopener noreferrer">Voßnacker et al., Angew. Chem. Int. Ed. (2022)</a>：硫氯化合物稳定性与低温 SCl₄ 离子型结构的文献依据。</li>
+    </ol>
+    <p class="note">来源主要为 NIST-JANAF 第四版 / NIST WebBook 所收录的已评审热化学数据；展示日期：2026-10-09。标准生成焓 ΔfH° 与 DFT 0 K 形成能 ΔEform、标准 Gibbs 生成自由能 ΔfG° 不是同一个量。</p>
+  </section>
+  <footer class="research-footer"><span>TIN · MATERIALS LEARNING STUDIO</span><span>S–Cl thermochemistry · data provenance first</span></footer>
+</main>
+<script src="../js/research-shell.js"></script>
+<script>
+(function(){
+  const rows = [
+    {f:'SCl₂',ox:'+II',n:3,g:-17.57,l:-49.79,source:'NIST WebBook'},
+    {f:'S₂Cl₂',ox:'+I（平均）',n:4,g:-16.74,l:-58.16,source:'NIST WebBook'},
+    {f:'SCl₄',ox:'+IV',n:5,g:null,l:null,source:'结构文献'}
+  ];
+  const esc = s=>String(s);
+  const format = (v,n,unit)=>{
+    if(v===null)return '<span class="muted">未核实</span>';
+    const out = unit==='kj'?v:unit==='evfu'?v/96.485:v/(96.485*n);
+    const digits=unit==='kj'?2:4;
+    return (out<0?'−':'+')+Math.abs(out).toFixed(digits);
+  };
+  function render(){
+    const unit=document.getElementById('unit').value;
+    document.getElementById('thermo-rows').innerHTML=rows.map((d,i)=>
+      '<tr><td><span class="formula">'+esc(d.f)+'</span></td><td>'+esc(d.ox)+'</td><td class="value">'+format(d.g,d.n,unit)+'</td><td class="value">'+format(d.l,d.n,unit)+'</td><td><span class="status">'+(d.g===null?'待验证':'NIST 经评审')+'</span></td><td><a href="#references">'+d.source+'</a></td></tr>'
+    ).join('');
+  }
+  document.getElementById('unit').addEventListener('change',render);
+  render();
+})();
+</script>
+</body>
+</html>
