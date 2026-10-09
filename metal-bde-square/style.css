@@ -1,1 +1,43 @@
 .square-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px}.plot-card{padding:18px}.plot-stage{position:relative;min-height:680px;border:1px solid var(--hairline);border-radius:18px;overflow:hidden;background:color-mix(in srgb,var(--bg-elevated) 44%,transparent)}#plot{display:block;width:100%;height:auto;min-height:680px}.tip{display:none;position:absolute;z-index:5;left:12px;top:12px;padding:10px 12px;border-radius:10px;font-size:11px;line-height:1.5;pointer-events:none;max-width:250px}.side-stack{display:grid;align-content:start;gap:18px}.explainer{padding:22px}.explainer p{margin:0;color:var(--text-secondary);font-size:.83rem;line-height:1.65}.region{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:start;padding:13px 0;border-top:1px solid var(--hairline)}.region:first-of-type{border-top:0}.region b{font-size:1.35rem;font-weight:520;color:var(--accent)}.region p{font-size:.78rem}.text-link{display:inline-block;margin-top:18px;color:var(--accent);font-size:.78rem;text-decoration:none}.text-link:hover{text-decoration:underline}@media(max-width:980px){.square-layout{grid-template-columns:1fr}.side-stack{grid-template-columns:repeat(2,minmax(0,1fr))}.plot-stage,#plot{min-height:0}}@media(max-width:650px){.side-stack{grid-template-columns:1fr}.plot-card{padding:8px}}
+
+/* S–Cl reference layer: separate physical quantity and visual scale from M–S/M–Cl axes */
+.plot-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.plot-top .section-kicker{margin-bottom:0}
+.scl-visibility{display:inline-flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:.77rem;cursor:pointer}
+.scl-visibility input{width:17px;height:17px;min-height:0;accent-color:#d49a52;cursor:pointer}
+.scl-compare{border:1px solid var(--hairline);border-radius:17px;margin-top:13px;padding:20px;background:var(--surface)}
+.scl-compare-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:7px;margin-bottom:12px}
+.scl-compare-head h2{font-size:1rem;line-height:1.4;font-weight:600;letter-spacing:-.015em;margin:4px 0}
+.scl-compare-head strong{color:var(--accent)}
+.scl-overline{color:var(--text-tertiary);font-weight:650;letter-spacing:.08em;font-size:.62rem}
+.scl-reference-tag{font-size:.68rem;padding:5px 9px;border-radius:999px;border:1px solid var(--hairline);color:var(--text-tertiary)}
+.scl-bond-bars{display:grid;gap:13px;margin:16px 0}
+.scl-bar-row{display:grid;grid-template-columns:78px minmax(0,1fr) 95px;gap:11px;align-items:center;font-size:.8rem}
+.scl-bar-label{font-weight:650;white-space:nowrap}
+.scl-bar-track{background:var(--surface-strong);height:12px;border-radius:8px;overflow:hidden}
+.scl-bar-fill{height:100%;border-radius:8px;min-width:2px}
+.scl-bar-fill.cl{background:#5aa9ff}
+.scl-bar-fill.s{background:#55c79a}
+.scl-bar-fill.scl{background:#d49a52}
+.scl-bar-value{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--text-secondary)}
+.scl-small-note{font-size:.72rem;line-height:1.7;color:var(--text-tertiary);margin:13px 0 0}
+.scl-enthalpy{padding:22px}
+.scl-enthalpy .section-kicker{margin-bottom:9px}
+.scl-summary{font-size:.78rem;line-height:1.6;color:var(--text-secondary);margin:0 0 13px}
+.scl-phase-control{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.76rem;color:var(--text-secondary);margin:4px 0 15px}
+.scl-phase-control select{font-size:.75rem;padding:5px 9px;min-height:37px;max-width:155px}
+.scl-enthalpy-bars{display:grid;gap:12px}
+.scl-enthalpy-row{display:grid;gap:5px}
+.scl-enthalpy-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:.83rem}
+.scl-enthalpy-name{font-weight:650}
+.scl-enthalpy-number{font-size:.79rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.scl-enthalpy-number.missing{color:var(--text-tertiary)}
+.scl-enthalpy-track{height:9px;background:var(--surface-strong);border-radius:10px;overflow:hidden}
+.scl-enthalpy-fill{height:100%;border-radius:10px;background:#d49a52}
+.scl-enthalpy-fill.liquid{background:#8e9fe7}
+.scl-enthalpy-row.na .scl-enthalpy-track{background:repeating-linear-gradient(125deg,var(--surface) 0px,var(--surface) 4px,var(--hairline) 4px,var(--hairline) 8px)}
+.scl-source-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}
+.scl-source-links a{font-size:.7rem;text-decoration:none;border:1px solid var(--hairline);padding:7px 9px;border-radius:9px;color:var(--accent)}
+.scl-source-links a:hover{background:var(--surface-hover)}
+[hidden]{display:none!important}
+@media(max-width:600px){.scl-compare{padding:14px}.scl-bar-row{grid-template-columns:60px minmax(0,1fr) 83px;gap:6px;font-size:.72rem}.scl-reference-tag{font-size:.63rem}}
