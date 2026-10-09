@@ -103,7 +103,7 @@ function renderNonmetalPoints(X,Y,axis,panel){
     const letter=E('text',{x:cx,y:cy+4,'text-anchor':'middle','font-size':10,'font-weight':800,fill:'#171717'});
     letter.textContent=d.m;g.appendChild(letter);
     // Larger invisible hit area for keyboard/touch and reliable SVG pointer targeting.
-    g.appendChild(E('circle',{cx,cy,r:18,fill:'transparent',stroke:'none'}));
+    g.appendChild(E('circle',{cx,cy,r:12,fill:'transparent',stroke:'none'}));
     const show=()=>{
       selected=d.m;renderSclBond();
       tip.innerHTML='<b style="color:'+color+'">'+d.m+' · 非金属参照点</b>'+
