@@ -38,19 +38,24 @@
     <div class="card plot-card">
       <div class="plot-top">
         <div class="section-kicker"><span>01</span><div class="section-title">M–S / M–Cl descriptor phase space</div></div>
-        <label class="scl-visibility" for="scl-toggle"><input id="scl-toggle" type="checkbox" checked><span>叠加 S–Cl 参照</span></label>
+        <label class="scl-visibility" for="scl-toggle"><input id="scl-toggle" type="checkbox" checked><span>显示 S / Cl 元素点</span></label>
       </div>
       <div class="plot-stage" id="root">
         <svg id="plot" viewBox="0 0 720 720" preserveAspectRatio="xMidYMid meet" aria-label="M-S versus M-Cl interactive plot"></svg>
         <div id="tip" class="tip"></div>
       </div>
+      <div class="scl-plot-legend" id="scl-plot-legend" aria-label="新增硫氯元素点图例">
+        <span><i class="scl-legend-dot sulfur"></i><b>S</b> (S–Cl: 271，S–S: 266)</span>
+        <span><i class="scl-legend-dot chlorine"></i><b>Cl</b> (Cl–Cl: 242，Cl–S: 271)</span>
+        <a href="https://www.ibchem.com/root_pdf/DataBook2025.pdf" target="_blank" rel="noopener noreferrer">平均单键焓数据源 ↗</a>
+      </div>
       <div id="scl-compare" class="scl-compare" aria-live="polite">
         <div class="scl-compare-head">
-          <div><span class="scl-overline">BOND ENERGY · REFERENCE LAYER</span><h2>选中金属：<strong id="compare-metal">Fe</strong> · 键能并列</h2></div>
-          <span class="scl-reference-tag">S–Cl 参照不占二维坐标</span>
+          <div><span class="scl-overline">BOND ENERGY · REFERENCE LAYER</span><h2>选中元素：<strong id="compare-metal">Fe</strong> · 键能并列</h2></div>
+          <span class="scl-reference-tag">平均单键焓 · 298 K</span>
         </div>
-        <div id="scl-bond-bars" class="scl-bond-bars" role="img" aria-label="所选金属 M–Cl、M–S 与气相 S–Cl 键解离焓的并列棒图"></div>
-        <p class="scl-small-note">S–Cl：SCl(g) → S(g) + Cl(g)，298 K 约 242.0 kJ mol⁻¹（JANAF/NIST，经生成焓推算，含较大不确定度）。M–Cl / M–S 沿用本站混合来源键能表；<b>同单位并列 ≠ 相同键解离定义、≠ 电极反应自由能</b>。</p>
+        <div id="scl-bond-bars" class="scl-bond-bars" role="img" aria-label="所选元素的 Cl 键、S 键与 S–Cl 平均单键焓并列棒图"></div>
+        <p class="scl-small-note">图内 S 和 Cl 新增点使用 <b>298 K 平均单键焓</b>：S–Cl 271、S–S 266、Cl–Cl 242 kJ mol⁻¹（IB Chemistry Data Booklet）。此前显示的约 242 kJ mol⁻¹ 来自孤立 SCl(g) 自由基的键解离焓，<b>与平均 S–Cl 单键焓不是同一种定义</b>。原金属键能表包含多种来源与定义，因此位置仅供结构化比较，不代表严格反应 ΔG。</p>
       </div>
     </div>
 
@@ -78,7 +83,7 @@
       </section>
       <section class="card explainer">
         <div class="section-kicker"><span>03</span><div class="section-title">判读方式</div></div>
-        <p>圆点代表实验成对数据；菱形表示至少一个键能由 DFT 数据补齐。红色外圈标记已有 SCl₃⁺ 金属氯络盐报道的元素。点击元素联动下方 S–Cl 对照；<b>S–Cl 不是具有 M–Cl 和 M–S 两个坐标的金属点</b>。</p>
+        <p>圆点代表金属实验数据，菱形表示至少一个键能由 DFT 补齐，红色外圈表示已有 SCl₃⁺ 络盐报道。<b>金黄色 S 点</b>的横纵坐标分别为 S–Cl / S–S；<b>粉红色 Cl 点</b>分别为 Cl–Cl / Cl–S。两点是单键焓参考，<b>不适用图中金属交换反应的 I–IV 区域结论</b>。</p>
         <a class="text-link" href="../metal-formation-energy/">用 Materials Project 形成能交叉验证 →</a>
       </section>
     </aside>
