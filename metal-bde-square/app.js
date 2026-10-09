@@ -12,6 +12,56 @@ function zone(d){if(d.delta>=0)return 1;if(d.delta>=-LI)return 2;if(d.delta>=-NA
 function ztxt(d){const z=zone(d);return z===1?'Region I：M–S 优势':z===2?'Region II：Li/Na 描述符为正':z===3?'Region III：Na 正、Li 近边界':'Region IV：Li/Na 描述符为负'}
 function mixed(d){return d.clSrc==='dft'||d.sSrc==='dft'}
 function fmt(v){return (Math.round(v*10)/10).toFixed(1)}
+
+/* A parallel measurement strip, not a point in the M–Cl/M–S coordinate space. */
+const SCL_BDE_298=242.01;
+const SCL_FORMATION_298=[
+  {name:'S₂Cl₂',oxi:'+I',gas:-16.74,liquid:-58.16},
+  {name:'SCl₂',oxi:'+II',gas:-17.57,liquid:-49.79},
+  {name:'SCl₄',oxi:'+IV',gas:null,liquid:null}
+];
+function renderSclBond(){
+  const d=data.find(x=>x.m===selected)||data.find(x=>x.m==='Fe')||data[0];
+  const title=document.getElementById('compare-metal');
+  const target=document.getElementById('scl-bond-bars');
+  if(!d||!title||!target)return;
+  title.textContent=d.m;
+  const bars=[
+    {name:d.m+'–Cl',value:d.cl,cls:'cl'},
+    {name:d.m+'–S',value:d.s,cls:'s'},
+    {name:'S–Cl*',value:SCL_BDE_298,cls:'scl'}
+  ];
+  const extent=Math.max(500,...bars.map(x=>x.value));
+  target.innerHTML=bars.map(b=>
+    '<div class="scl-bar-row"><span class="scl-bar-label">'+b.name+'</span>'+
+    '<div class="scl-bar-track"><div class="scl-bar-fill '+b.cls+'" style="width:'+
+    (b.value/extent*100).toFixed(2)+'%"></div></div><span class="scl-bar-value">'+
+    fmt(b.value)+' kJ/mol</span></div>'
+  ).join('');
+  target.setAttribute('aria-label',d.m+'–Cl '+fmt(d.cl)+'，'+d.m+'–S '+fmt(d.s)+'，S–Cl 242.0 kJ/mol，三项仅供并列参考');
+}
+function renderSclEnthalpy(){
+  const select=document.getElementById('scl-phase'),target=document.getElementById('scl-enthalpy-bars');
+  if(!select||!target)return;
+  const phase=select.value;
+  target.innerHTML=SCL_FORMATION_298.map(d=>{
+    const v=d[phase],known=Number.isFinite(v);
+    return '<div class="scl-enthalpy-row '+(known?'':'na')+'">'+
+      '<div class="scl-enthalpy-head"><span class="scl-enthalpy-name">'+d.name+
+      ' <span style="font-size:.7rem;color:var(--text-tertiary)">S('+d.oxi+')</span></span>'+
+      '<span class="scl-enthalpy-number'+(known?'':' missing')+'">'+
+      (known?(v<0?'−':'+')+Math.abs(v).toFixed(2)+' kJ/mol':'未核实')+'</span></div>'+
+      '<div class="scl-enthalpy-track">'+(known?'<div class="scl-enthalpy-fill '+phase+
+      '" style="width:'+Math.min(100,Math.abs(v)/65*100).toFixed(1)+'%"></div>':'')+'</div></div>';
+  }).join('');
+  target.setAttribute('aria-label',(phase==='gas'?'气相':'液相')+'硫氯化合物标准生成焓对比');
+}
+function syncSclVisibility(){
+  const checked=document.getElementById('scl-toggle').checked;
+  document.getElementById('scl-compare').hidden=!checked;
+  document.getElementById('scl-enthalpy-card').hidden=!checked;
+}
+
 function render(){
   const grid=css('--plot-grid'),axis=css('--plot-axis'),label=css('--plot-label'),panel=css('--bg-elevated');
   svg.innerHTML='';const W=720,H=720,ml=70,mr=18,mt=18,mb=64,iw=W-ml-mr,ih=H-mt-mb,max=800;
@@ -48,7 +98,14 @@ function render(){
     mark.addEventListener('click',show);mark.addEventListener('pointerenter',show);svg.appendChild(mark);
     const lab=E('text',{x:cx+7,y:cy+(i%2?-7:11),'font-size':9.3,fill:axis,'font-weight':selected===d.m?700:500});lab.textContent=d.m;lab.style.pointerEvents='none';svg.appendChild(lab);
   });
+  renderSclBond();
+  renderSclEnthalpy();
 }
-function init(){render();if(window.Office&&Office.context&&Office.context.document){try{Office.context.document.addHandlerAsync(Office.EventType.ActiveViewChanged,()=>setTimeout(render,80))}catch(e){}}}
+function init(){
+  document.getElementById('scl-toggle').addEventListener('change',syncSclVisibility);
+  document.getElementById('scl-phase').addEventListener('change',renderSclEnthalpy);
+  syncSclVisibility();
+  render();
+}
 window.addEventListener('research-theme-change',render);
-if(window.Office&&Office.onReady){Office.onReady(()=>init());setTimeout(()=>{if(!svg.childNodes.length)render()},1200)}else init();
+init();
