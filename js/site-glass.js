@@ -4,6 +4,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
 (function() {
   "use strict";
   const NS = "http://www.w3.org/2000/svg";
+  const FULL_LENS_SELECTOR = ".liquid-button,.top-action,.brand,.chapter-title,.chapter-menu-trigger,.mobile-rail-toggle,.header-center,.header-link,.tool-strip a,.segmented,.derivation-controls";
   const svgNode = (name, attrs = {}) => {
     const node = document.createElementNS(NS, name);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
@@ -22,6 +23,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       document.body.append(this.svg);
     }
     update(element, width, height, radius, strength, range, filter) {
+      const fullLens = element.matches(FULL_LENS_SELECTOR);
+      element.dataset.lensCoverage = fullLens ? "full" : "shoulder";
       let lens = this.lenses.get(element);
       if (!lens) {
         const id = `studio-native-lens-${++this.sequence}`;
@@ -41,7 +44,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         element.dataset.refractionSource = "dom-backdrop";
         element.style.setProperty("--glass-native-lens", `url("#${id}")`);
       }
-      const key = [width, height, radius, strength, range].map((v) => v.toFixed(1)).join(":");
+      const key = [width, height, radius, strength, range, Number(fullLens)].map((v) => v.toFixed(1)).join(":");
       if (lens.key !== key) {
         lens.key = key;
         lens.filter.setAttribute("width", String(width));
@@ -67,9 +70,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           nx *= Math.sign(px);
           ny *= Math.sign(py);
           const t = Math.min(1, depth / range), bend = Math.pow(1 - t * t * (3 - 2 * t), 0.88);
+          const bodyX = fullLens ? Math.max(-24, Math.min(24, -px * 0.35)) + 2 : 0;
+          const bodyY = fullLens ? Math.max(-15, Math.min(15, -py * 0.4)) - 1.5 : 0;
+          const displacementX = nx * strength * bend + bodyX * (1 - bend);
+          const displacementY = ny * strength * bend + bodyY * (1 - bend);
           const offset = (y * w + x) * 4;
-          pixels.data[offset] = Math.round(127.5 + 127.5 * nx * bend);
-          pixels.data[offset + 1] = Math.round(127.5 + 127.5 * ny * bend);
+          pixels.data[offset] = Math.round(127.5 + 127.5 * displacementX / strength);
+          pixels.data[offset + 1] = Math.round(127.5 + 127.5 * displacementY / strength);
           pixels.data[offset + 2] = 128;
           pixels.data[offset + 3] = 255;
           const diagonal = Math.pow(Math.max(0, (-nx - ny) / Math.SQRT2), 6);
@@ -94,6 +101,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         element.style.removeProperty("--glass-native-frost");
         delete element.dataset.nativeLens;
         delete element.dataset.refractionSource;
+        delete element.dataset.lensCoverage;
         this.lenses.delete(element);
       }
     }
@@ -260,7 +268,8 @@ void main() {
   float surfaceFlag = u_flags[chosen];
   float depth = max(-chosenDistance, 0.0);
   // Keep the whole reading area untouched, not just almost transparent.
-  if (depth > optics.y) { fragColor = vec4(0.0); return; }
+  bool fullLens = surfaceFlag == 3.0;
+  if (!fullLens && depth > optics.y) { fragColor = vec4(0.0); return; }
 
   /* SDF normal. */
   float eps = 0.8;
@@ -308,6 +317,10 @@ void main() {
      Use the same conversion for bend, dispersion and the scatter aperture. */
   vec2 pxToUV = vec2(1.0 / max(u_viewport.x, 1.0), -1.0 / max(u_viewport.y, 1.0));
   vec2 refractionUV = bendDir * refractionPx * pxToUV;
+  if (fullLens) {
+    vec2 body = clamp(-(cssPoint - center) * vec2(0.35, 0.40), vec2(-24.0,-15.0), vec2(24.0,15.0)) + vec2(2.0,-1.5);
+    refractionUV = mix(body * pxToUV, refractionUV, refractField);
+  }
 
   /*
    * Canvas texture is uploaded with UNPACK_FLIP_Y_WEBGL=true,
@@ -363,7 +376,9 @@ void main() {
   /* A strong sampled lens when a real line moves; nearly absent over a flat
      scene. Constant high alpha overlaid raw wallpaper on the DOM material
      and caused a dark inset outline around controls. */
-  float refractedAlpha = min(0.92, u_hasBackground * refractField * sampledAlpha * mix(0.12, 0.92, displacedDetail));
+  float coverageField = fullLens ? 1.0 : refractField;
+  float response = fullLens ? 0.92 : mix(0.12, 0.92, displacedDetail);
+  float refractedAlpha = min(0.92, u_hasBackground * coverageField * sampledAlpha * response);
 
   vec3 cool = vec3(0.42, 0.69, 1.00);
   vec3 warm = vec3(1.00, 0.80, 0.48);
@@ -453,7 +468,7 @@ void main() {
       __publicField(this, "layers", /* @__PURE__ */ new Map());
       const canvas = document.createElement("canvas");
       canvas.className = "studio-glass-shared-canvas";
-      canvas.dataset.opticsVersion = "crystal-glass-13";
+      canvas.dataset.opticsVersion = "crystal-glass-14";
       canvas.dataset.presentation = this.native ? "native-backdrop" : "element-attached";
       canvas.setAttribute("aria-hidden", "true");
       document.body.appendChild(canvas);
@@ -562,7 +577,7 @@ void main() {
           fresnelRange = 1.1;
           glareRange = 1.15;
         } else if (element.matches(".rail-item, .top-action, .liquid-button, .text-button, .segmented, .derivation-controls, .brand, .chapter-title, .chapter-menu-trigger, .mobile-rail-toggle, .header-center, .header-link, .tool-strip a")) {
-          refractionPx = 18;
+          refractionPx = 26;
           refractionRange = 11;
           fresnelRange = 1.6;
           glareRange = 1.6;
@@ -577,7 +592,7 @@ void main() {
         opticsData[index * 4 + 1] = refractionRange;
         opticsData[index * 4 + 2] = fresnelRange;
         opticsData[index * 4 + 3] = glareRange;
-        flagData[index] = element.matches(".chapter-menu") ? 5 : element.matches(".search-panel") ? 4 : element.matches(".liquid-button,.top-action,.brand,.chapter-title,.chapter-menu-trigger,.mobile-rail-toggle,.header-center,.header-link,.tool-strip a") ? 3 : element.matches(".chapter-rail") ? 2 : element.matches(".site-header,.header-wrapper") ? 1 : 0;
+        flagData[index] = element.matches(".chapter-menu") ? 5 : element.matches(".search-panel") ? 4 : element.matches(".liquid-button,.top-action,.brand,.chapter-title,.chapter-menu-trigger,.mobile-rail-toggle,.header-center,.header-link,.tool-strip a,.segmented,.derivation-controls") ? 3 : element.matches(".chapter-rail") ? 2 : element.matches(".site-header,.header-wrapper") ? 1 : 0;
         if (this.native) {
           this.native.update(element, element.offsetWidth, element.offsetHeight, radiusData[index], refractionPx, refractionRange, style.backdropFilter);
         }
