@@ -11,6 +11,8 @@
     });
     q.fullAnswer=arr.length?arr.join("\n\n"):q.branches.map(function(b,i){return (i+1)+"、"+b.name+"\n"+b.detail}).join("\n\n")+"\n\n总结口述：\n"+q.oral;
   });
+  const verbatim=window.INTERVIEW_V2_VERBATIM||{};
+  QUESTIONS.forEach(function(q){if(verbatim[q.id])q.fullAnswer=verbatim[q.id]});
   const extras=window.INTERVIEW_V2_EXTRA||[];
   extras.forEach(function(item){
     const id="q"+String(QUESTIONS.length+1).padStart(2,"0");
