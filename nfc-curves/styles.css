@@ -104,6 +104,25 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .chart-card-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .context-toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; color: #526576; font-size: 12px; cursor: pointer; }
 .context-toggle input { width: 18px; height: 18px; accent-color: var(--teal); }
+.curve-identification {
+  display: grid;
+  grid-template-columns: auto minmax(120px, auto) 1fr;
+  align-items: center;
+  gap: 8px 13px;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border: 1px solid #acd9d3;
+  border-left: 4px solid var(--teal);
+  border-radius: 8px;
+  background: #edf8f6;
+  color: #334d5a;
+  font-size: 12px;
+}
+.curve-identification[hidden] { display: none; }
+.identification-kicker { color: #0d6a63; font-size: 10px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.curve-identification strong { color: #153247; font-size: 14px; }
+.curve-identification > span:last-child { color: #536a77; overflow-wrap: anywhere; }
 .legend { display: flex; flex-wrap: wrap; gap: 7px; min-height: 9px; margin: 12px 0 5px; }
 .legend-button { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; max-width: 260px; padding: 5px 9px; border: 1px solid #d4dde4; border-radius: 7px; background: #fff; color: #33495a; cursor: pointer; font-size: 11px; }
 .legend-button:hover, .legend-button.active { border-color: var(--navy); background: #f0f5f8; }
@@ -111,6 +130,7 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .legend-button span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chart-wrap { position: relative; min-height: 520px; width: 100%; }
 #chart { display: block; width: 100%; height: 540px; touch-action: none; }
+#chart.is-hittable { cursor: pointer; }
 .tooltip { position: absolute; z-index: 5; max-width: 260px; pointer-events: none; padding: 9px 11px; border-radius: 7px; background: rgba(18, 32, 46, .94); color: white; box-shadow: 0 5px 18px rgba(0,0,0,.2); font-size: 11px; }
 .tooltip strong { display: block; margin-bottom: 3px; color: #fff; }
 .empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #607083; text-align: center; padding: 24px; }
@@ -150,6 +170,7 @@ footer p { margin: 0; }
   .toolbar-card > .button { flex: 1 1 120px; }
   .chart-card, .table-card { padding: 13px; }
   .chart-card-header { align-items: flex-start; flex-direction: column; }
+  .curve-identification { grid-template-columns: 1fr; gap: 2px; }
   .chart-wrap { min-height: 390px; }
   #chart { height: 410px; }
   .chart-note { padding-top: 9px; }

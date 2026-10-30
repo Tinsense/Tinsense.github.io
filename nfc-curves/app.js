@@ -18,7 +18,10 @@
     recipe: "",
     showContext: false,
     ranges: { qMin: 0, qMax: 300, vMin: 2.4, vMax: 4.5 },
-    renderedPoints: []
+    renderedPoints: [],
+    hitBuckets: new Map(),
+    contextHitCount: 0,
+    selectedHitCount: 0
   };
 
   const el = Object.fromEntries([
@@ -26,7 +29,7 @@
     "select-visible", "clear-selected", "export-csv", "capacity-min", "capacity-max",
     "voltage-min", "voltage-max", "apply-range", "reset-range", "show-context",
     "legend", "selection-table", "active-label", "chart", "chart-wrap", "tooltip",
-    "empty-state", "stat-samples"
+    "empty-state", "stat-samples", "curve-identification", "identified-name", "identified-meta"
   ].map((id) => [id, document.getElementById(id)]));
 
   const ctx = el.chart.getContext("2d");
@@ -125,6 +128,12 @@
     renderLegend();
     renderTable();
     drawChart();
+  }
+
+  function identifySample(sample) {
+    el["identified-name"].textContent = sample.name;
+    el["identified-meta"].textContent = `${sample.temperature} °C · ${sample.startTime} · DevID ${sample.devId} · ${sample.file}`;
+    el["curve-identification"].hidden = false;
   }
 
   function renderLegend() {
@@ -262,11 +271,14 @@
     ctx.rect(layout.left, layout.top, plotW, plotH);
     ctx.clip();
     state.renderedPoints = [];
+    state.hitBuckets = new Map();
+    state.contextHitCount = 0;
+    state.selectedHitCount = 0;
 
     if (state.showContext) {
       for (const sample of visibleSamples()) {
         if (state.selected.has(sample.id)) continue;
-        drawSample(sample, "#9aa8b4", 0.14, 0.75, false, xScale, yScale);
+        drawSample(sample, "#9aa8b4", 0.14, 0.75, "context", xScale, yScale);
       }
     }
 
@@ -276,7 +288,7 @@
       const sample = sampleById.get(id);
       if (!sample) continue;
       const active = id === state.active;
-      drawSample(sample, colorFor(id), 1, active ? 3.1 : 1.85, true, xScale, yScale);
+      drawSample(sample, colorFor(id), 1, active ? 3.1 : 1.85, "selected", xScale, yScale);
     }
     ctx.restore();
 
@@ -294,10 +306,42 @@
     ctx.fillText("电压 / V", 0, 0);
     ctx.restore();
 
-    el["empty-state"].hidden = state.selected.size > 0;
+    el["empty-state"].hidden = state.selected.size > 0 || state.showContext;
+    el.chart.dataset.contextHitCount = String(state.contextHitCount);
+    el.chart.dataset.selectedHitCount = String(state.selectedHitCount);
   }
 
-  function drawSample(sample, color, opacity, width, collect, xScale, yScale) {
+  function bucketKey(x, y) {
+    return `${Math.floor(x / 20)},${Math.floor(y / 20)}`;
+  }
+
+  function addHitPoint(point) {
+    if (point.kind === "context") state.contextHitCount += 1;
+    else state.selectedHitCount += 1;
+    const key = bucketKey(point.x, point.y);
+    const bucket = state.hitBuckets.get(key);
+    if (bucket) bucket.push(point);
+    else state.hitBuckets.set(key, [point]);
+  }
+
+  function findNearestPoint(x, y, radius = 15) {
+    const bx = Math.floor(x / 20);
+    const by = Math.floor(y / 20);
+    let best = null;
+    let bestDistance = radius ** 2;
+    for (let dx = -1; dx <= 1; dx += 1) {
+      for (let dy = -1; dy <= 1; dy += 1) {
+        const bucket = state.hitBuckets.get(`${bx + dx},${by + dy}`) || [];
+        for (const point of bucket) {
+          const distance = (point.x - x) ** 2 + (point.y - y) ** 2;
+          if (distance < bestDistance) { bestDistance = distance; best = point; }
+        }
+      }
+    }
+    return best;
+  }
+
+  function drawSample(sample, color, opacity, width, collectKind, xScale, yScale) {
     for (const segment of sample.segments) {
       if (!state.cycles.has(segment.cycle)) continue;
       const cycleOpacity = segment.cycle === 1 ? opacity : opacity * 0.58;
@@ -316,8 +360,11 @@
         const x = xScale(q);
         const y = yScale(v);
         if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
-        if (collect && i % 2 === 0 && q >= state.ranges.qMin && q <= state.ranges.qMax && v >= state.ranges.vMin && v <= state.ranges.vMax) {
-          state.renderedPoints.push({ x, y, q, v, sample, cycle: segment.cycle, mode: segment.mode });
+        const stride = collectKind === "context" ? 4 : 2;
+        if (collectKind && i % stride === 0 && q >= state.ranges.qMin && q <= state.ranges.qMax && v >= state.ranges.vMin && v <= state.ranges.vMax) {
+          const point = { x, y, q, v, sample, cycle: segment.cycle, mode: segment.mode, kind: collectKind };
+          addHitPoint(point);
+          if (collectKind === "selected") state.renderedPoints.push(point);
         }
       }
       if (started) ctx.stroke();
@@ -391,22 +438,18 @@
   }
 
   function showTooltip(event) {
-    if (!state.renderedPoints.length) return hideTooltip();
     const rect = el.chart.getBoundingClientRect();
     const px = event.clientX - rect.left;
     const py = event.clientY - rect.top;
-    let best = null;
-    let bestDistance = 14 ** 2;
-    for (const point of state.renderedPoints) {
-      const distance = (point.x - px) ** 2 + (point.y - py) ** 2;
-      if (distance < bestDistance) { bestDistance = distance; best = point; }
-    }
+    const best = findNearestPoint(px, py);
+    el.chart.classList.toggle("is-hittable", Boolean(best));
     if (!best) return hideTooltip();
     el.tooltip.replaceChildren();
     const title = document.createElement("strong");
     title.textContent = best.sample.name;
     const detail = document.createElement("span");
-    detail.textContent = `${best.sample.temperature} °C · 第 ${best.cycle} 圈 · ${best.mode === "charge" ? "充电" : "放电"}\n${best.q.toFixed(2)} mAh g⁻¹ · ${best.v.toFixed(3)} V`;
+    const action = best.kind === "context" ? "\n点击即可加入对比并高亮" : "";
+    detail.textContent = `${best.sample.temperature} °C · 第 ${best.cycle} 圈 · ${best.mode === "charge" ? "充电" : "放电"}\n${best.q.toFixed(2)} mAh g⁻¹ · ${best.v.toFixed(3)} V${action}`;
     detail.style.whiteSpace = "pre-line";
     el.tooltip.append(title, detail);
     el.tooltip.hidden = false;
@@ -416,7 +459,18 @@
     el.tooltip.style.top = `${top}px`;
   }
 
-  function hideTooltip() { el.tooltip.hidden = true; }
+  function hideTooltip() { el.tooltip.hidden = true; el.chart.classList.remove("is-hittable"); }
+
+  function handleChartClick(event) {
+    const rect = el.chart.getBoundingClientRect();
+    const point = findNearestPoint(event.clientX - rect.left, event.clientY - rect.top, 18);
+    if (!point) return;
+    if (point.kind === "context") state.selected.add(point.sample.id);
+    state.active = point.sample.id;
+    hideTooltip();
+    identifySample(point.sample);
+    renderAll(true);
+  }
 
   el.search.addEventListener("input", () => { state.search = el.search.value; renderSampleList(); drawChart(); });
   el["recipe-filter"].addEventListener("change", () => { state.recipe = el["recipe-filter"].value; renderSampleList(); drawChart(); });
@@ -444,6 +498,7 @@
   el["export-csv"].addEventListener("click", exportCsv);
   el.chart.addEventListener("pointermove", showTooltip);
   el.chart.addEventListener("pointerleave", hideTooltip);
+  el.chart.addEventListener("click", handleChartClick);
   window.addEventListener("resize", () => {
     cancelAnimationFrame(resizeFrame);
     resizeFrame = requestAnimationFrame(drawChart);

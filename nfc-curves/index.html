@@ -103,6 +103,12 @@
           </label>
         </div>
 
+        <div id="curve-identification" class="curve-identification" role="status" aria-live="polite" hidden>
+          <span class="identification-kicker">已识别样品</span>
+          <strong id="identified-name"></strong>
+          <span id="identified-meta"></span>
+        </div>
+
         <div id="legend" class="legend" aria-label="已选样品图例"></div>
         <div id="chart-wrap" class="chart-wrap">
           <canvas id="chart" role="img" aria-label="所选 NFC 样品的比容量—电压曲线"></canvas>
@@ -116,6 +122,7 @@
           <span><i class="line-key solid"></i>充电</span>
           <span><i class="line-key dashed"></i>放电</span>
           <span>第 2 圈以较低透明度显示</span>
+          <span>点击灰色背景曲线可识别并高亮样品</span>
           <span>曲线为保峰形抽稀数据，鼠标悬停可读数</span>
         </div>
       </div>
