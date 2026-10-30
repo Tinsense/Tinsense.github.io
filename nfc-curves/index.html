@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="按配方、测试温度和圈数交互比较 NFC 恒流充放电比容量—电压曲线。">
+  <title>NFC 恒流充放电曲线对比</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#chart-panel">跳到曲线图</a>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">Electrochemistry workspace</p>
+      <h1>NFC 恒流充放电曲线对比</h1>
+      <p class="subtitle">按配方、温度与圈次筛选，在同一坐标系中观察首两圈比容量—电压曲线。</p>
+    </div>
+    <div class="dataset-stats" aria-label="数据集概览">
+      <div><strong id="stat-samples">63</strong><span>样品</span></div>
+      <div><strong>2</strong><span>温度</span></div>
+      <div><strong>2</strong><span>圈次</span></div>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="controls" aria-label="曲线筛选与坐标设置">
+      <section class="control-section">
+        <div class="section-heading">
+          <h2>筛选样品</h2>
+          <span id="visible-count" class="badge">63</span>
+        </div>
+        <label class="field-label" for="search">配方或源文件</label>
+        <input id="search" class="text-input" type="search" placeholder="例如 Na2FeCl2S" autocomplete="off">
+
+        <fieldset>
+          <legend>测试温度</legend>
+          <div class="segmented" id="temperature-filter">
+            <label><input type="checkbox" value="35" checked><span>35 °C</span></label>
+            <label><input type="checkbox" value="60" checked><span>60 °C</span></label>
+          </div>
+        </fieldset>
+
+        <label class="field-label" for="recipe-filter">配方</label>
+        <select id="recipe-filter" class="select-input">
+          <option value="">全部配方</option>
+        </select>
+
+        <div class="button-row">
+          <button id="select-visible" class="button secondary" type="button">选择可见</button>
+          <button id="clear-selected" class="button ghost" type="button">清空</button>
+        </div>
+      </section>
+
+      <section class="sample-section" aria-labelledby="sample-heading">
+        <div class="section-heading sticky-heading">
+          <h2 id="sample-heading">样品</h2>
+          <span id="selected-count" class="badge accent">0 已选</span>
+        </div>
+        <div id="sample-list" class="sample-list" role="list"></div>
+      </section>
+
+      <section class="control-section bottom-controls">
+        <button id="export-csv" class="button primary full" type="button">导出所选曲线 CSV</button>
+      </section>
+    </aside>
+
+    <section id="chart-panel" class="chart-column" aria-label="曲线比较区">
+      <div class="toolbar-card">
+        <div class="toolbar-group">
+          <span class="toolbar-label">圈数</span>
+          <div class="segmented compact" id="cycle-filter">
+            <label><input type="checkbox" value="1" checked><span>第 1 圈</span></label>
+            <label><input type="checkbox" value="2"><span>第 2 圈</span></label>
+          </div>
+        </div>
+        <div class="toolbar-group range-group">
+          <span class="toolbar-label">比容量 / mAh g<sup>−1</sup></span>
+          <label><span class="sr-only">比容量下限</span><input id="capacity-min" type="number" value="0" step="10"></label>
+          <span aria-hidden="true">—</span>
+          <label><span class="sr-only">比容量上限</span><input id="capacity-max" type="number" value="300" step="10"></label>
+        </div>
+        <div class="toolbar-group range-group">
+          <span class="toolbar-label">电压 / V</span>
+          <label><span class="sr-only">电压下限</span><input id="voltage-min" type="number" value="2.4" step="0.1"></label>
+          <span aria-hidden="true">—</span>
+          <label><span class="sr-only">电压上限</span><input id="voltage-max" type="number" value="4.5" step="0.1"></label>
+        </div>
+        <button id="apply-range" class="button primary" type="button">应用范围</button>
+        <button id="reset-range" class="button ghost" type="button">重置</button>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <p class="eyebrow">Specific capacity–voltage</p>
+            <h2>恒流充放电曲线</h2>
+          </div>
+          <label class="context-toggle">
+            <input id="show-context" type="checkbox">
+            <span>显示未选样品作灰色背景</span>
+          </label>
+        </div>
+
+        <div id="legend" class="legend" aria-label="已选样品图例"></div>
+        <div id="chart-wrap" class="chart-wrap">
+          <canvas id="chart" role="img" aria-label="所选 NFC 样品的比容量—电压曲线"></canvas>
+          <div id="tooltip" class="tooltip" role="status" aria-live="polite" hidden></div>
+          <div id="empty-state" class="empty-state">
+            <strong>选择样品后开始比较</strong>
+            <span>可在左侧按配方和温度筛选，再勾选一个或多个样品。</span>
+          </div>
+        </div>
+        <div class="chart-note">
+          <span><i class="line-key solid"></i>充电</span>
+          <span><i class="line-key dashed"></i>放电</span>
+          <span>第 2 圈以较低透明度显示</span>
+          <span>曲线为保峰形抽稀数据，鼠标悬停可读数</span>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Selection details</p>
+            <h2>所选样品信息</h2>
+          </div>
+          <span id="active-label" class="active-label">未设置主高亮</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>高亮</th><th>配方</th><th>温度</th><th>测试时间</th><th>设备</th><th>源文件</th></tr></thead>
+            <tbody id="selection-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>数据：筛选后的 63 个 NFC 恒流充放电测试 · 默认窗口 2.4–4.5 V / 0–300 mAh g<sup>−1</sup></p>
+  </footer>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
